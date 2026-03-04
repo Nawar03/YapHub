@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YapHub - Feed</title>
+    <title>YapHub - My Profile</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="feed-page">
@@ -37,10 +37,10 @@
         <!-- Left Sidebar -->
         <aside class="feed-sidebar-left">
             <div class="nav-links">
-                <a href="feed.html" class="nav-link active">Home</a>
+                <a href="feed.html" class="nav-link">Home</a>
                 <a href="following.html" class="nav-link">Following</a>
                 <a href="trending.html" class="nav-link">Trending</a>
-                <a href="myprofile.html" class="nav-link">Profile</a>
+                <a href="myprofile.html" class="nav-link active">Profile</a>
                 <a href="settings.html" class="nav-link">Settings</a>
             </div>
             <button class="post-btn">Post</button>
@@ -48,35 +48,28 @@
 
         <!-- Center Content -->
         <main class="feed-main">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
-            <div class="feed-content">
-                <div class="post-card">
-                    <!-- Post Header -->
-                    <div class="post-header">
-                        <div class="post-header-left">
-                            <span class="post-nickname">Nickname</span>
+            <div class="profile-header-container">
+                <!-- Edit Profile Button (Top-Right) -->
+                <a href="edit-profile.html" class="btn edit-profile-btn">Edit Profile</a>
+
+                <!-- Profile Header Content -->
+                <div class="profile-header">
+                    <!-- Left Side: Profile Info -->
+                    <div class="profile-left">
+                        <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <div class="profile-info">
+                            <div class="profile-name-row">
+                                <h2 class="profile-name">Name</h2>
+                                <div class="profile-desc">
+                                    <p>Description</p>
+                                </div>
+                            </div>
+                            <p class="profile-handle">@nickname</p>
+                            <div class="profile-stats">
+                                <span class="stat">0 Following</span>
+                                <span class="stat">0 Followers</span>
+                            </div>
                         </div>
-                        <div class="post-header-right">
-                            <span class="post-time">24h</span>
-                        </div>
-                    </div>
-
-                    <!-- Post Content -->
-                    <div class="post-body">
-                        <p class="post-text">Post Content</p>
-                    </div>
-
-                    <!-- Post Media -->
-                    <div class="post-media">
-                        <p>Media placeholder</p>
-                    </div>
-
-                    <!-- Post Actions -->
-                    <div class="post-actions">
-                        <button class="post-action-btn">👍 Like</button>
-                        <button class="post-action-btn">💬 Comment</button>
                     </div>
                 </div>
             </div>
