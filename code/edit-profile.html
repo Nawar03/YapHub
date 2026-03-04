@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YapHub - Feed</title>
+    <title>YapHub - Edit Profile</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="feed-page">
@@ -37,10 +37,10 @@
         <!-- Left Sidebar -->
         <aside class="feed-sidebar-left">
             <div class="nav-links">
-                <a href="feed.html" class="nav-link active">Home</a>
+                <a href="feed.html" class="nav-link">Home</a>
                 <a href="following.html" class="nav-link">Following</a>
                 <a href="trending.html" class="nav-link">Trending</a>
-                <a href="myprofile.html" class="nav-link">Profile</a>
+                <a href="myprofile.html" class="nav-link active">Profile</a>
                 <a href="settings.html" class="nav-link">Settings</a>
             </div>
             <button class="post-btn">Post</button>
@@ -48,36 +48,37 @@
 
         <!-- Center Content -->
         <main class="feed-main">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
-            <div class="feed-content">
-                <div class="post-card">
-                    <!-- Post Header -->
-                    <div class="post-header">
-                        <div class="post-header-left">
-                            <span class="post-nickname">Nickname</span>
-                        </div>
-                        <div class="post-header-right">
-                            <span class="post-time">24h</span>
-                        </div>
-                    </div>
+            <div class="profile-form">
+                <!-- Description Field -->
+                <div class="profile-row">
+                    <textarea class="profile-input profile-textarea" placeholder="Description"></textarea>
+                </div>
 
-                    <!-- Post Content -->
-                    <div class="post-body">
-                        <p class="post-text">Post Content</p>
-                    </div>
+                <!-- First Name + Last Name -->
+                <div class="profile-row profile-row-two">
+                    <input type="text" class="profile-input" placeholder="First Name">
+                    <input type="text" class="profile-input" placeholder="Last Name">
+                </div>
 
-                    <!-- Post Media -->
-                    <div class="post-media">
-                        <p>Media placeholder</p>
-                    </div>
+                <!-- Nickname Field -->
+                <div class="profile-row">
+                    <input type="text" class="profile-input" placeholder="Nickname">
+                </div>
 
-                    <!-- Post Actions -->
-                    <div class="post-actions">
-                        <button class="post-action-btn">👍 Like</button>
-                        <button class="post-action-btn">💬 Comment</button>
-                    </div>
+                <!-- Email Field -->
+                <div class="profile-row">
+                    <input type="email" class="profile-input" placeholder="Email">
+                </div>
+
+                <!-- Password Field -->
+                <div class="profile-row">
+                    <input type="password" class="profile-input" placeholder="Password">
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="profile-actions">
+                    <button class="btn btn-save">Save All Changes</button>
+                    <a href="myprofile.html" class="btn btn-cancel">Cancel</a>
                 </div>
             </div>
         </main>

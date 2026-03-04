@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YapHub - Feed</title>
+    <title>YapHub - Settings</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="feed-page">
@@ -37,47 +37,27 @@
         <!-- Left Sidebar -->
         <aside class="feed-sidebar-left">
             <div class="nav-links">
-                <a href="feed.html" class="nav-link active">Home</a>
+                <a href="feed.html" class="nav-link">Home</a>
                 <a href="following.html" class="nav-link">Following</a>
                 <a href="trending.html" class="nav-link">Trending</a>
                 <a href="myprofile.html" class="nav-link">Profile</a>
-                <a href="settings.html" class="nav-link">Settings</a>
+                <a href="settings.html" class="nav-link active">Settings</a>
             </div>
             <button class="post-btn">Post</button>
         </aside>
 
         <!-- Center Content -->
         <main class="feed-main">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
-            <div class="feed-content">
-                <div class="post-card">
-                    <!-- Post Header -->
-                    <div class="post-header">
-                        <div class="post-header-left">
-                            <span class="post-nickname">Nickname</span>
-                        </div>
-                        <div class="post-header-right">
-                            <span class="post-time">24h</span>
-                        </div>
-                    </div>
+            <div class="settings-container">
+                <h2 class="settings-title">Settings</h2>
 
-                    <!-- Post Content -->
-                    <div class="post-body">
-                        <p class="post-text">Post Content</p>
-                    </div>
+                <a href="edit-profile.html" class="settings-btn">Edit Profile</a>
+                <a href="edit-profile.html" class="settings-btn">Change Password</a>
+                <a href="edit-profile.html" class="settings-btn">Change Email</a>
 
-                    <!-- Post Media -->
-                    <div class="post-media">
-                        <p>Media placeholder</p>
-                    </div>
-
-                    <!-- Post Actions -->
-                    <div class="post-actions">
-                        <button class="post-action-btn">👍 Like</button>
-                        <button class="post-action-btn">💬 Comment</button>
-                    </div>
+                <div class="settings-row">
+                    <button class="settings-btn">Logout</button>
+                    <button class="settings-btn settings-danger">Delete Account</button>
                 </div>
             </div>
         </main>
