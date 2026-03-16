@@ -43,7 +43,7 @@
                 <a href="myprofile.html" class="nav-link">Profile</a>
                 <a href="settings.html" class="nav-link">Settings</a>
             </div>
-            <button class="post-btn">Post</button>
+            <button class="post-btn" onclick="window.location.href='createPost.html'">Post</button>
         </aside>
 
         <!-- Center Content -->
@@ -68,11 +68,6 @@
                         <p class="post-text">Post Content</p>
                     </div>
 
-                    <!-- Post Media -->
-                    <div class="post-media">
-                        <p>Media placeholder</p>
-                    </div>
-
                     <!-- Post Actions -->
                     <div class="post-actions">
                         <button class="post-action-btn">👍 Like</button>
@@ -90,6 +85,11 @@
         </aside>
     </div>
 
+    <script>
+        if (!sessionStorage.getItem('user_id')) {
+            window.location.href = 'index.html';
+        }
+    </script>
     <script src="js/script.js"></script>
 </body>
 </html>

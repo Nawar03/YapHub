@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YapHub - Create Post</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="feed-page">
+    <!-- Header -->
+    <header class="feed-header">
+        <div class="header-content">
+            <!-- Left: Logo -->
+            <div class="header-left">
+                <img src="images/logo2.png" alt="YapHub Logo" class="header-logo">
+            </div>
+
+            <!-- Right: User -->
+            <div class="header-right">
+                <div class="header-profile">
+                    <a href="myprofile.html" class="profile-avatar-link">
+                        <div class="profile-avatar"></div>
+                    </a>
+                    <span class="header-nickname" id="headerNickname"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Feed Layout -->
+    <div class="feed-layout">
+        <!-- Left Sidebar -->
+        <aside class="feed-sidebar-left">
+            <div class="nav-links">
+                <a href="feed.html" class="nav-link">Home</a>
+                <a href="following.html" class="nav-link">Following</a>
+                <a href="trending.html" class="nav-link">Trending</a>
+                <a href="myprofile.html" class="nav-link">Profile</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </div>
+            <button class="post-btn" onclick="window.location.href='createPost.html'">Post</button>
+        </aside>
+
+        <!-- Center Content -->
+        <main class="feed-main">
+            <div class="post-card" style="display: flex; flex-direction: column; height: 400px;">
+                <div class="post-header">
+                    <div class="post-header-left" style="display: flex; align-items: center;">
+                        <img src="images/logo2.png" style="width:30px; height:30px; border-radius:50%;">
+                        <span id="postNickname" style="margin-left: 8px; font-weight: bold;"></span>
+                    </div>
+                    <div class="post-header-right">
+                        <button onclick="window.location.href='feed.html'" class="post-action-btn" style="background-color: #888; color: white; border: none;">Cancel</button>
+                    </div>
+                </div>
+                <textarea id="postContent" placeholder="What's on your mind?" style="flex: 1; width: 100%; border: none; resize: none; font-size: 16px; padding: 12px; outline: none;"></textarea>
+                <div style="display: flex; justify-content: flex-end; padding: 8px;">
+                    <button class="post-btn" id="submitPost">Post</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="right-sidebar-placeholder">
+                <p>Future features</p>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        if (!sessionStorage.getItem('user_id')) {
+            window.location.href = 'index.html';
+        }
+        
+        document.getElementById('headerNickname').textContent = sessionStorage.getItem('nickname') || 'Guest';
+        document.getElementById('postNickname').textContent = sessionStorage.getItem('nickname') || 'Guest';
+
+        document.getElementById('submitPost').onclick = async function() {
+          const content = document.getElementById('postContent').value.trim();
+          const user_id = sessionStorage.getItem('user_id');
+
+          if (!content) {
+            alert('Please write something before posting!');
+            return;
+          }
+
+          try {
+            const res = await fetch('/posts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ user_id, content })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              window.location.href = 'feed.html';
+            } else {
+              alert('Error posting: ' + data.message);
+            }
+          } catch (err) {
+            alert('Network error: ' + err.message);
+          }
+        };
+    </script>
+</body>
+</html>

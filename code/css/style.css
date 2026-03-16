@@ -429,6 +429,8 @@ nav {
 .feed-main {
     flex: 0 0 60%;
     padding: 2rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
 }
 
 .search-container {
@@ -452,10 +454,12 @@ nav {
 
 .feed-content {
     background-color: transparent;
-    min-height: 400px;
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
     justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
 }
 
 .content-placeholder {
@@ -890,4 +894,118 @@ nav {
 
 .settings-row .settings-btn {
     flex: 1;
+}
+
+/* Create Post Page Styles */
+.create-post-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.create-post-header {
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.create-post-user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.create-post-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e0e0e0;
+}
+
+.create-post-nickname {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.create-post-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.create-post-textarea {
+    flex: 1;
+    width: 100%;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: none;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+    min-height: 300px;
+}
+
+.create-post-textarea:focus {
+    outline: none;
+    border-color: #7C3AED;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.create-post-textarea::placeholder {
+    color: #999;
+}
+
+.create-post-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.create-post-btn {
+    padding: 0.85rem 2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-post-btn-post {
+    background-color: #7C3AED;
+    color: white;
+}
+
+.create-post-btn-post:hover {
+    background-color: #6d28d9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.create-post-btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #e0e0e0;
+}
+
+.create-post-btn-cancel:hover {
+    background-color: #e8e8e8;
 }

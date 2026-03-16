@@ -227,9 +227,86 @@ app.get("/api/follows/check/:profileId", (req, res) => {
       console.error("Database error:", err);
       return res.status(500).json({ error: "Database error" }); }
     res.json({ isFollowing: results.length > 0 });
+// POST /posts - Create a new post
+app.post('/posts', (req, res) => {
+  const { user_id, content } = req.body;
+
+  if (!user_id || !content) {
+    return res.status(400).json({ success: false, message: 'Missing user_id or content' });
+  }
+
+  const sql = `
+    INSERT INTO posts (user_id, content, created_at, expires_at)
+    VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY))
+  `;
+
+  db.query(sql, [user_id, content], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
+  });
+});
+
+// GET /posts - Retrieve non-expired posts
+app.get('/posts', (req, res) => {
+  const sql = `
+    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    FROM posts
+    JOIN users ON posts.user_id = users.user_id
+    WHERE posts.expires_at > NOW()
+    ORDER BY posts.created_at DESC
+  `;
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json(results);
+  });
+});
+
+
+/// GET /posts/:post_id/comments - Get comments for a post
+app.get('/posts/:post_id/comments', (req, res) => {
+  const postId = req.params.post_id;
+
+  const sql = "SELECT * FROM comments WHERE post_id = ?";
+
+  db.query(sql, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+    res.json(results);
+  });
+});
+
+// POST /comments - Add a new comment
+app.post('/comments', (req, res) => {
+  const { post_id, user_id, content } = req.body;
+
+  if (!post_id || !user_id || !content || content.trim() === '') {
+    return res.status(400).json({ success: false, message: 'Missing or empty fields' });
+  }
+
+  const sql = `
+    INSERT INTO comments (post_id, user_id, content, created_at)
+    VALUES (?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [post_id, user_id, content.trim()], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
   });
 });
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
