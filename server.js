@@ -27,7 +27,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Elmomo123!',
+  password: 'marwip777',
   database: 'yaphub'
 });
 
@@ -227,6 +227,9 @@ app.get("/api/follows/check/:profileId", (req, res) => {
       console.error("Database error:", err);
       return res.status(500).json({ error: "Database error" }); }
     res.json({ isFollowing: results.length > 0 });
+  });
+});
+
 // POST /posts - Create a new post
 app.post('/posts', (req, res) => {
   const { user_id, content } = req.body;

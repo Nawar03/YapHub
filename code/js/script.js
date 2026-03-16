@@ -112,7 +112,7 @@ async function loadUser() {
     const data = await res.json();
 
     if (data.loggedIn) {
-      const nicknameHeader = document.getElementById("myNickname");
+      const nicknameHeader = document.getElementById("headerNickname");
       if (nicknameHeader) {
         nicknameHeader.textContent = data.user.nickname; }
     }
