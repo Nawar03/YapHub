@@ -1,0 +1,13 @@
+As a user, I want to have a follow feature so users in YapHub can follow other users.
+3. Why this adds value to the project
+This adds value to the project since users may want to follow other users using YapHub 
+4. What layers it touches:
+• UI
+Users can use the search bar to find users in YapHub, pull up their page and be able to follow their profile. 
+• Backend
+User would send a request to find the specific users that the user is looking for and then go to their profile and be able to follow their profile. 
+• Database
+The user in the database would then follow the other user and show the table that the user is following this user by their ID's
+• External API if applicable
+
+Would need to change the front page of adding a follow button to the profiles and being able to follow. For backend, I need to change the script where user makes a request to find and pull up the user's profile and then make a request to follow the user. Database changes include needing to update the follow table and input data of users following other users. 

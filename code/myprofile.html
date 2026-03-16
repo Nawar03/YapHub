@@ -26,7 +26,7 @@
                     <a href="myprofile.html" class="profile-avatar-link">
                         <div class="profile-avatar"></div>
                     </a>
-                    <span class="header-nickname">myNickname</span>
+                    <span class="header-nickname" id = "myNickname">myNickname</span>
                 </div>
             </div>
         </div>
@@ -59,15 +59,15 @@
                         <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
                         <div class="profile-info">
                             <div class="profile-name-row">
-                                <h2 class="profile-name">Name</h2>
+                                <h2 class="profile-name"  id="profile-handle">Name</h2>
                                 <div class="profile-desc">
                                     <p>Description</p>
                                 </div>
                             </div>
                             <p class="profile-handle">@nickname</p>
                             <div class="profile-stats">
-                                <span class="stat">0 Following</span>
-                                <span class="stat">0 Followers</span>
+                                <span class="stat" id="following-count">0 Following</span>
+                                <span class="stat" id="followers-count">0 Followers</span>
                             </div>
                         </div>
                     </div>
@@ -89,5 +89,41 @@
         }
     </script>
     <script src="js/script.js"></script>
+    <script>
+async function loadMyProfile() {
+
+  try {
+
+    const meRes = await fetch("/me", {
+      credentials: "include"
+    });
+
+    const meData = await meRes.json();
+
+    const userId = meData.user.user_id;
+
+    const res = await fetch(`/api/users/${userId}`);
+    const data = await res.json();
+
+    document.getElementById("profile-handle").textContent =
+      data.first_name + " " + data.last_name;
+
+    document.querySelector(".profile-handle").textContent =
+      "@" + data.nickname;
+
+    document.getElementById("followers-count").textContent =
+      data.followers + " Followers";
+
+    document.getElementById("following-count").textContent =
+      data.following + " Following";
+
+  } catch (err) {
+    console.error("Profile load error:", err);
+  }
+
+}
+
+loadMyProfile();
+    </script>
 </body>
 </html>

@@ -46,6 +46,39 @@
 
         <!-- Center Content -->
         <main class="feed-main">
+            <form class="search-container">
+                <input type="text" class="search-input" id="user-search" placeholder="Search...">
+                <div id="search-results"></div>
+            </form>
+            <div class="feed-content">
+                <div class="post-card">
+                    <!-- Post Header -->
+                    <div class="post-header">
+                        <div class="post-header-left">
+                            <span class="post-nickname">Nickname</span>
+                        </div>
+                        <div class="post-header-right">
+                            <span class="post-time">24h</span>
+                        </div>
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="post-body">
+                        <p class="post-text">Post Content</p>
+                    </div>
+
+                    <!-- Post Media -->
+                    <div class="post-media">
+                        <p>Media placeholder</p>
+                    </div>
+
+                    <!-- Post Actions -->
+                    <div class="post-actions">
+                        <button class="post-action-btn">👍 Like</button>
+                        <button class="post-action-btn">💬 Comment</button>
+                    </div>
+                </div>
+            </div>
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="Search...">
             </div>
@@ -67,5 +100,80 @@
         }
     </script>
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+    // PROFILE PAGE
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user_id");
+
+    if (userId) loadProfile(userId);
+
+    async function loadProfile(userId) {
+        try {
+            const res = await fetch(`/api/users/${userId}`);
+            if (!res.ok) throw new Error("User not found");
+            const data = await res.json();
+
+            document.getElementById("profile-handle").textContent = `${data.first_name} ${data.last_name}`;
+            document.querySelector(".profile-handle").textContent = `@${data.nickname}`;
+            document.getElementById("following-count").textContent = `${data.following} Following`;
+            document.getElementById("followers-count").textContent = `${data.followers} Followers`;
+            document.querySelector(".profile-logo").src = data.profile_picture || "images/default-avatar.png";
+
+            const followBtn = document.getElementById("follow-btn");
+            followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+            followBtn.onclick = async () => {
+                const action = data.isFollowing ? "unfollow" : "follow";
+                const followRes = await fetch(`/api/users/${data.username}/follow`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ action })
+                });
+                const followData = await followRes.json();
+                data.isFollowing = !data.isFollowing;
+                followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+                document.getElementById("followers-count").textContent = `${followData.followers} Followers`;
+            };
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    // SEARCH BAR
+    const searchInput = document.getElementById("user-search");
+    const resultsContainer = document.getElementById("search-results");
+
+    if (searchInput) {
+        searchInput.addEventListener("keydown", async (e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+
+            const nickname = searchInput.value.trim();
+            if (!nickname) return;
+
+            try {
+                const res = await fetch(`/api/users/nickname/${encodeURIComponent(nickname)}`);
+                if (!res.ok) {
+                    if (resultsContainer) resultsContainer.innerHTML = "<p>User not found</p>";
+                    return;
+                }
+            const userData = await res.json();
+            const meRes = await fetch("/me", { credentials: "include" });
+            const meData = await meRes.json();
+
+            if (meData.loggedIn && meData.user.user_id === userData.user_id) {
+                window.location.href = "myProfile.html";
+            } else {
+                window.location.href = `/profile.html?user_id=${encodeURIComponent(userData.user_id)}`;
+            } }
+             catch (err) {
+                console.error(err);
+                if (resultsContainer) resultsContainer.innerHTML = "<p>Server error</p>";
+            }
+        });
+    }
+});
+    </script>
 </body>
 </html>

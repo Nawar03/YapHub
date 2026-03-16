@@ -26,7 +26,7 @@
                     <a href="myprofile.html" class="profile-avatar-link">
                         <div class="profile-avatar"></div>
                     </a>
-                    <span class="header-nickname">myNickname</span>
+                    <span class="header-nickname" id = "myNickname">myNickname</span>
                 </div>
             </div>
         </div>
@@ -50,7 +50,7 @@
         <main class="feed-main">
             <div class="profile-header-container">
                 <!-- Follow Button (Top-Right) -->
-                <button class="btn edit-profile-btn">Follow</button>
+                <button class="btn edit-profile-btn" id="followBtn">Follow</button>
 
                 <!-- Profile Header Content -->
                 <div class="profile-header">
@@ -59,15 +59,15 @@
                         <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
                         <div class="profile-info">
                             <div class="profile-name-row">
-                                <h2 class="profile-name">Name</h2>
+                                <h2 class="profile-name" id="profile-handle">Name</h2>
                                 <div class="profile-desc">
                                     <p>Description</p>
                                 </div>
                             </div>
                             <p class="profile-handle">@nickname</p>
                             <div class="profile-stats">
-                                <span class="stat">0 Following</span>
-                                <span class="stat">0 Followers</span>
+                                <span class="stat" id="following-count">0 Following</span>
+                                <span class="stat" id="followers-count">0 Followers</span>
                             </div>
                         </div>
                     </div>
@@ -84,5 +84,76 @@
     </div>
 
     <script src="js/script.js"></script>
+    <script>
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("user_id");
+
+fetch(`/api/users/${userId}`, {
+    credentials: "include"})
+  .then(res => res.json())
+  .then(data => {
+
+    document.getElementById("profile-handle").textContent =
+      data.first_name + " " + data.last_name;
+
+    document.querySelector(".profile-handle").textContent =
+      "@" + data.nickname;
+
+    document.getElementById("followers-count").textContent =
+      data.followers + " Followers";
+
+    document.getElementById("following-count").textContent =
+      data.following + " Following";
+
+ })
+async function loadFollowButton(profileUserId) {
+  const followBtn = document.getElementById("followBtn");
+  const followersCountEl = document.getElementById("followers-count");
+  if (!followBtn) return;
+  try {
+    const res = await fetch(`/api/follows/check/${profileUserId}`, {
+      credentials: "include"
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    // Set initial button text correctly
+    followBtn.textContent = data.isFollowing ? "Following" : "Follow";
+
+    //handler for follow/unfollow
+    followBtn.addEventListener("click", async () => {
+      const currentlyFollowing = followBtn.textContent === "Following";
+      const endpoint = currentlyFollowing
+        ? `/api/unfollow/${profileUserId}`
+        : `/api/follow/${profileUserId}`;
+
+      try {
+        const toggleRes = await fetch(endpoint, {
+          method: "POST",
+          credentials: "include"
+        });
+        const result = await toggleRes.json();
+
+        if (result.success) {
+          followBtn.textContent = currentlyFollowing ? "Follow" : "Following";
+
+          // Update followers count live
+          if (followersCountEl) {
+            const match = followersCountEl.textContent.match(/\d+/);
+            let count = match ? parseInt(match[0], 10) : 0;
+            count = currentlyFollowing ? count - 1 : count + 1;
+            followersCountEl.textContent = `${count} Followers`;
+          }
+        }
+      } catch (err) {
+        console.error("Follow/unfollow failed:", err); }
+    });
+  } catch (err) {
+    console.error("Could not load follow status:", err); }
+}
+document.addEventListener("DOMContentLoaded", () => {
+  if (userId) {
+    loadFollowButton(userId); }
+});
+    </script>
 </body>
 </html>
