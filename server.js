@@ -125,29 +125,7 @@ app.post('/posts', (req, res) => {
   });
 });
 
-// GET /posts - Retrieve non-expired posts
-app.get('/posts', (req, res) => {
-  const sql = `
-    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
-    FROM posts
-    JOIN users ON posts.user_id = users.user_id
-    WHERE posts.expires_at > NOW()
-    ORDER BY posts.created_at DESC
-  `;
-
-  db.query(sql, (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ success: false, message: 'Database error' });
-    }
-    return res.json(results);
-  });
-});
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
-
+/// GET /posts/:post_id/comments - Get comments for a post
 app.get('/posts/:post_id/comments', (req, res) => {
   const postId = req.params.post_id;
 
@@ -162,6 +140,29 @@ app.get('/posts/:post_id/comments', (req, res) => {
   });
 });
 
+// POST /comments - Add a new comment
+app.post('/comments', (req, res) => {
+  const { post_id, user_id, content } = req.body;
+
+  if (!post_id || !user_id || !content || content.trim() === '') {
+    return res.status(400).json({ success: false, message: 'Missing or empty fields' });
+  }
+
+  const sql = `
+    INSERT INTO comments (post_id, user_id, content, created_at)
+    VALUES (?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [post_id, user_id, content.trim()], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
