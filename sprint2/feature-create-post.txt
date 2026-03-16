@@ -1,0 +1,125 @@
+CMPSC 390 – Sprint 2 Feature Brief
+Name: Oskar Krzyżak
+Branch: oskarDev
+Feature Name: Create Post
+
+--------------------------------------------------
+
+User Story
+
+As a user, I want to create a short post so that I can share a message with others.
+
+--------------------------------------------------
+
+Why This Adds Value
+
+Creating posts is the main function of YapHub. This feature allows users to share content and makes the feed useful. Without posts, the application would not function as a social media platform.
+
+--------------------------------------------------
+
+Layers This Feature Touches
+
+UI:
+- Feed page and Create Post form
+
+Backend:
+- Routes to create and retrieve posts
+
+Database:
+- MySQL posts table
+
+External API:
+- None
+
+--------------------------------------------------
+
+Problem Statement
+
+YapHub is a social media platform where users share short posts that disappear after 24 hours. Currently, users cannot create posts. This feature allows users to create a post and see it in the feed.
+
+--------------------------------------------------
+
+User Flow
+
+1. User opens the Feed page.
+2. User clicks the "Post" button.
+3. User enters text into a textbox.
+4. User submits the post.
+5. The post is saved in the database.
+6. The Feed shows the new post.
+
+--------------------------------------------------
+
+Technical Plan
+
+Frontend:
+- Add a simple Create Post form on feed.html
+- Add a textbox and submit button
+- Send post data using JavaScript
+- Display posts on the feed page
+
+Backend:
+- Create POST /posts route to save posts
+- Create GET /posts route to return posts
+
+Database (MySQL):
+- Create a posts table
+
+Fields:
+- id
+- nickname
+- content
+- created_at
+- expires_at
+
+--------------------------------------------------
+
+Files Expected
+
+Frontend:
+- Code/feed.html
+- Code/js/script.js
+
+Backend:
+- Server file (to be created or modified)
+
+Database:
+- SQL file for posts table
+
+--------------------------------------------------
+
+API Changes
+
+POST /posts
+Creates a new post.
+
+Example request:
+nickname: demoUser
+content: Hello YapHub
+
+GET /posts
+Returns active posts.
+
+--------------------------------------------------
+
+Database Changes
+
+New table: posts
+
+Fields:
+- id (primary key)
+- nickname
+- content
+- created_at
+- expires_at
+
+--------------------------------------------------
+
+Acceptance Criteria
+
+- User can create a post
+- Post is saved in the database
+- Post appears in the feed
+- Reloading the page keeps the post
+- Feature works without login
+- Feature can be demonstrated independently

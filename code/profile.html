@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YapHub - Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="feed-page">
+    <!-- Header -->
+    <header class="feed-header">
+        <div class="header-content">
+            <!-- Left: Logo -->
+            <div class="header-left">
+                <img src="images/logo.png" alt="YapHub Logo" class="header-logo">
+            </div>
+
+            <!-- Center: Title -->
+            <div class="header-center">
+                <h1 class="header-title">YapHub</h1>
+            </div>
+
+            <!-- Right: User -->
+            <div class="header-right">
+                <div class="header-profile">
+                    <a href="myprofile.html" class="profile-avatar-link">
+                        <div class="profile-avatar"></div>
+                    </a>
+                    <span class="header-nickname">myNickname</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Feed Layout -->
+    <div class="feed-layout">
+        <!-- Left Sidebar -->
+        <aside class="feed-sidebar-left">
+            <div class="nav-links">
+                <a href="feed.html" class="nav-link">Home</a>
+                <a href="following.html" class="nav-link">Following</a>
+                <a href="trending.html" class="nav-link">Trending</a>
+                <a href="myprofile.html" class="nav-link">Profile</a>
+                <a href="settings.html" class="nav-link">Settings</a>
+            </div>
+            <button class="post-btn">Post</button>
+        </aside>
+
+        <!-- Center Content -->
+        <main class="feed-main">
+            <div class="profile-header-container">
+                <!-- Follow Button (Top-Right) -->
+                <button class="btn edit-profile-btn">Follow</button>
+
+                <!-- Profile Header Content -->
+                <div class="profile-header">
+                    <!-- Left Side: Profile Info -->
+                    <div class="profile-left">
+                        <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <div class="profile-info">
+                            <div class="profile-name-row">
+                                <h2 class="profile-name">Name</h2>
+                                <div class="profile-desc">
+                                    <p>Description</p>
+                                </div>
+                            </div>
+                            <p class="profile-handle">@nickname</p>
+                            <div class="profile-stats">
+                                <span class="stat">0 Following</span>
+                                <span class="stat">0 Followers</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar -->
+        <aside class="feed-sidebar-right">
+            <div class="right-sidebar-placeholder">
+                <p>Future features</p>
+            </div>
+        </aside>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
