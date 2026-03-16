@@ -144,7 +144,45 @@ app.get('/posts', (req, res) => {
   });
 });
 
+
+/// GET /posts/:post_id/comments - Get comments for a post
+app.get('/posts/:post_id/comments', (req, res) => {
+  const postId = req.params.post_id;
+
+  const sql = "SELECT * FROM comments WHERE post_id = ?";
+
+  db.query(sql, [postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Database error");
+    }
+    res.json(results);
+  });
+});
+
+// POST /comments - Add a new comment
+app.post('/comments', (req, res) => {
+  const { post_id, user_id, content } = req.body;
+
+  if (!post_id || !user_id || !content || content.trim() === '') {
+    return res.status(400).json({ success: false, message: 'Missing or empty fields' });
+  }
+
+  const sql = `
+    INSERT INTO comments (post_id, user_id, content, created_at)
+    VALUES (?, ?, ?, NOW())
+  `;
+
+  db.query(sql, [post_id, user_id, content.trim()], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
- 
+
