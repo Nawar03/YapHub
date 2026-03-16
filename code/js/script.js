@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Network error: " + err.message);
       }
     });
-  }
+  } 
 
   // LOG IN
   const loginBtn = document.getElementById("loginBtn");
@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch("/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({ email, password })
         });
 
@@ -59,4 +60,82 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+async function goToProfile(nickname) {
+
+  try {
+    const res = await fetch(`/api/users/nickname/${encodeURIComponent(nickname)}`);
+    if (!res.ok) {
+      alert("User not found");
+      return; }
+
+    const userData = await res.json();
+
+    // check logged in user
+    const meRes = await fetch("/me", { credentials: "include" });
+    const meData = await meRes.json();
+
+    if (meData.loggedIn && meData.user.user_id === userData.user_id) {
+      window.location.href = "myProfile.html";}
+    else {
+      window.location.href = `profile.html?user_id=${userData.user_id}`; }
+  } catch (err) {
+    console.error("Search error:", err); }
+}
+
+//this keeps the username in the top
+async function loadUser() {
+  try {
+    const res = await fetch("/me", 
+    {
+      credentials: "include" });
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    if (data.loggedIn) {
+      const nicknameHeader = document.getElementById("myNickname");
+      if (nicknameHeader) {
+        nicknameHeader.textContent = data.user.nickname; }
+    }
+  } 
+  catch (err) {
+    console.error("Could not get user:", err); }
+}
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch("/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+      if (res.ok) {
+        window.location.href = "index.html"; }
+    } catch (err) {
+      console.error("Logout failed:", err); }
+  });
+}
+
+const followBtn = document.getElementById("followBtn");
+
+if (followBtn) {
+  followBtn.addEventListener("click", async () => {
+    try {
+      const res = await fetch(`/api/follow/${userId}`, {
+        method: "POST",
+        credentials: "include"
+      });
+      const data = await res.json();
+      if (data.success) {
+        followBtn.textContent = "Following";
+      }
+
+    } catch (err) {
+      console.error("Follow failed:", err); }
+  });
+}
+  loadUser();
 });
