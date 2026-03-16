@@ -70,6 +70,10 @@
 
     <script src="js/script.js"></script>
     <script>
+        if (!sessionStorage.getItem('user_id')) {
+            window.location.href = 'index.html';
+        }
+        
         document.getElementById('headerNickname').textContent = sessionStorage.getItem('nickname') || 'Guest';
         document.getElementById('postNickname').textContent = sessionStorage.getItem('nickname') || 'Guest';
 
