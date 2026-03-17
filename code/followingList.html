@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YapHub - Trending</title>
+    <title>YapHub - Feed</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="feed-page">
@@ -14,19 +14,17 @@
             <div class="header-left">
                 <img src="images/logo.png" alt="YapHub Logo" class="header-logo">
             </div>
-
             <!-- Center: Title -->
             <div class="header-center">
                 <h1 class="header-title">YapHub</h1>
             </div>
-
             <!-- Right: User -->
             <div class="header-right">
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
                         <div class="profile-avatar"></div>
                     </a>
-                    <span class="header-nickname" id = "myNickname" >myNickname</span>
+                    <span class="header-nickname" id="myNickname">myNickname</span>
                 </div>
             </div>
         </div>
@@ -37,9 +35,9 @@
         <!-- Left Sidebar -->
         <aside class="feed-sidebar-left">
             <div class="nav-links">
-                <a href="feed.html" class="nav-link">Home</a>
+                <a href="feed.html" class="nav-link active">Home</a>
                 <a href="following.html" class="nav-link">Following</a>
-                <a href="trending.html" class="nav-link active">Trending</a>
+                <a href="trending.html" class="nav-link">Trending</a>
                 <a href="myprofile.html" class="nav-link">Profile</a>
                 <a href="settings.html" class="nav-link">Settings</a>
             </div>
@@ -48,33 +46,8 @@
 
         <!-- Center Content -->
         <main class="feed-main">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
-            <div class="feed-content">
-                <div class="post-card">
-                    <!-- Post Header -->
-                    <div class="post-header">
-                        <div class="post-header-left">
-                            <span class="post-nickname">Nickname</span>
-                        </div>
-                        <div class="post-header-right">
-                            <span class="post-time">24h</span>
-                        </div>
-                    </div>
-
-                    <!-- Post Content -->
-                    <div class="post-body">
-                        <p class="post-text">Post Content</p>
-                    </div>
-
-                    <!-- Post Actions -->
-                    <div class="post-actions">
-                        <button class="post-action-btn">👍 Like</button>
-                        <button class="post-action-btn">💬 Comment</button>
-                    </div>
-                </div>
-            </div>
+            <h2 class="header-center">Following</h2>
+            <ul id="following-list"></ul>
         </main>
 
         <!-- Right Sidebar -->
@@ -91,5 +64,41 @@
         }
     </script>
     <script src="js/script.js"></script>
+    <script>
+     document.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const userId = params.get("user_id");
+  if (!userId) return;
+
+  const list = document.getElementById("following-list");
+  if (!list) return;
+
+  try {
+    const res = await fetch(`/api/following/${userId}`);
+    if (!res.ok) throw new Error("Failed to fetch followed users");
+    const users = await res.json();
+
+    list.innerHTML = "";
+
+    if (users.length === 0) {
+      list.innerHTML = "<li>No following yet.</li>";
+      return;
+    }
+
+    users.forEach(user => {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <a href="profile.html?user_id=${user.user_id}" class="user-card">
+          <strong>${user.nickname}</strong>
+        </a>
+      `;
+      list.appendChild(li);
+    });
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = "<li>Error loading following</li>";
+  }
+});
+    </script>
 </body>
 </html>
