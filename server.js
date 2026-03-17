@@ -27,7 +27,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'marwip777',
+  password: 'Elmomo123!',
   database: 'yaphub'
 });
 
@@ -229,7 +229,44 @@ app.get("/api/follows/check/:profileId", (req, res) => {
     res.json({ isFollowing: results.length > 0 });
   });
 });
+// gets the user's followers
+app.get("/api/followers/:user_id", (req, res) => {
+  const userId = req.params.user_id;
 
+  const sql = `
+    SELECT u.user_id, u.nickname
+    FROM follows f
+    JOIN users u ON f.follower_id = u.user_id
+    WHERE f.following_id = ?
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+});
+// gets the user's following
+app.get("/api/following/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+
+  const sql = `
+    SELECT u.user_id, u.nickname
+    FROM follows f
+    JOIN users u ON f.following_id = u.user_id
+    WHERE f.follower_id = ?
+  `;
+
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+});
 // POST /posts - Create a new post
 app.post('/posts', (req, res) => {
   const { user_id, content } = req.body;
