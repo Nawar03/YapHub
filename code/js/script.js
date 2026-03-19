@@ -14,6 +14,20 @@ function getTimeLeft(expiresAt) {
   return diffHours + 'h ' + String(remainingMins).padStart(2, '0') + 'min';
 }
 
+function getCommentAge(createdAt) {
+  const now = new Date();
+  const created = new Date(createdAt);
+  const diffMs = now - created;
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return 'just now';
+  if (diffMins < 60) return diffMins + 'm ago';
+  if (diffHours < 24) return diffHours + 'h ago';
+  return diffDays + 'd ago';
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   // SIGN UP
   const signupForm = document.getElementById("signupForm");
@@ -164,23 +178,103 @@ if (followBtn) {
         posts.forEach(post => {
           const postCard = document.createElement('div');
           postCard.className = 'post-card';
+          postCard.dataset.postId = post.post_id;
           postCard.innerHTML = `
-            <div class="post-header">
-              <div class="post-header-left">
-                <span class="post-nickname">${post.nickname}</span>
-              </div>
-              <div class="post-header-right">
-                <span class="post-time">${getTimeLeft(post.expires_at)}</span>
-              </div>
-            </div>
-            <div class="post-body">
-              <p class="post-text">${post.content}</p>
-            </div>
-            <div class="post-actions">
-              <button class="post-action-btn">👍 Like</button>
-              <button class="post-action-btn">💬 Comment</button>
-            </div>
-          `;
+  <div class="post-header">
+    <div class="post-header-left">
+      <span class="post-nickname">${post.nickname}</span>
+    </div>
+    <div class="post-header-right">
+      <span class="post-time">${getTimeLeft(post.expires_at)}</span>
+    </div>
+  </div>
+  <div class="post-body">
+    <p class="post-text">${post.content}</p>
+  </div>
+  <div class="post-actions">
+    <button class="post-action-btn">👍 Like</button>
+    <button class="post-action-btn comment-toggle-btn">💬 Comment</button>
+  </div>
+  <div class="comments-section" style="display: none;">
+    <div class="comments-list"></div>
+    <div class="comment-input-row">
+      <input type="text" class="comment-input" placeholder="Write a comment...">
+      <button class="submit-comment-btn">Post</button>
+    </div>
+    <p class="comment-message"></p>
+  </div>
+`;
+
+          const toggleBtn = postCard.querySelector(".comment-toggle-btn");
+          const commentsSection = postCard.querySelector(".comments-section");
+          const commentsList = postCard.querySelector(".comments-list");
+          const submitBtn = postCard.querySelector(".submit-comment-btn");
+          const commentInput = postCard.querySelector(".comment-input");
+          const commentMessage = postCard.querySelector(".comment-message");
+          const postId = parseInt(post.post_id, 10);
+
+          async function loadComments() {
+            try {
+              const response = await fetch(`/posts/${postId}/comments`);
+              const comments = await response.json();
+              commentsList.innerHTML = "";
+              comments.forEach((comment) => {
+                const p = document.createElement("p");
+                p.style.display = "flex";
+                p.style.justifyContent = "flex-start";
+                p.style.alignItems = "center";
+                p.innerHTML = `
+                  <span style="font-size: 12px; color: #6b7280; margin-right: 8px; white-space: nowrap; font-weight: bold;">@${comment.nickname}</span>
+                  <span style="flex: 1;">${comment.content}</span>
+                  <span style="font-size: 11px; color: #9ca3af; margin-left: 12px; white-space: nowrap;">${getCommentAge(comment.created_at)}</span>
+                `;
+                commentsList.appendChild(p);
+              });
+            } catch (err) {
+              commentMessage.textContent = "Error loading comments";
+            }
+          }
+
+          toggleBtn.addEventListener("click", async () => {
+            const isHidden = commentsSection.style.display === "none" || commentsSection.style.display === "";
+            if (isHidden) {
+              commentsSection.style.display = "block";
+              await loadComments();
+            } else {
+              commentsSection.style.display = "none";
+            }
+          });
+
+          submitBtn.addEventListener("click", async () => {
+            const content = commentInput.value.trim();
+            const userId = sessionStorage.getItem("user_id");
+            if (!userId) {
+              commentMessage.textContent = "You must be logged in to comment";
+              return;
+            }
+            if (!content) {
+              commentMessage.textContent = "Comment cannot be empty";
+              return;
+            }
+            try {
+              const response = await fetch("/comments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ post_id: postId, user_id: userId, content: content })
+              });
+              const result = await response.json();
+              if (result.success) {
+                commentInput.value = "";
+                commentMessage.textContent = "Comment added";
+                await loadComments();
+              } else {
+                commentMessage.textContent = result.message || "Error adding comment";
+              }
+            } catch (err) {
+              commentMessage.textContent = "Network error";
+            }
+          });
+
           feedContent.appendChild(postCard);
         });
 
