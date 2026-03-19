@@ -435,6 +435,7 @@ nav {
 
 .search-container {
     margin-bottom: 2rem;
+    position: relative;
 }
 
 .search-input {
@@ -1041,4 +1042,27 @@ nav {
   text-decoration: none;
   color: inherit;
   width: 100%;
+}
+
+#search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.search-item:hover {
+  background: #f0f0f0;
 }

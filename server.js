@@ -133,20 +133,27 @@ app.post("/logout", (req, res) => {
 });
 
 // SEARCHES USERS IN SEARCH BAR
-app.get("/api/users/nickname/:nickname", (req, res) => {
-  const nickname = req.params.nickname;
-  db.query(
-    "SELECT user_id, nickname FROM users WHERE LOWER(nickname) = LOWER(?) LIMIT 1",
-    [nickname],
-    (err, results) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ error: "Server error" }); }
-      if (results.length === 0) {
-        return res.status(404).json({ error: "User not found" }); }
-      res.json(results[0]);
+app.get("/api/search/users", (req, res) => {
+  const query = req.query.q;
+  if (!query) {
+    return res.json([]);
+  }
+
+  const sql = `
+    SELECT user_id, nickname
+    FROM users
+    WHERE nickname LIKE ?
+    LIMIT 5
+  `;
+
+  db.query(sql, [`${query}%`], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
     }
-  );
+
+    res.json(results); 
+  })
 });
 
 // GET USER PROFILE / INFO BY ID 
