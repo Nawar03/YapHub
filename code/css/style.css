@@ -1010,6 +1010,65 @@ nav {
     background-color: #e8e8e8;
 }
 
+.comments-section {
+  padding: 12px 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.comments-list {
+  margin-bottom: 12px;
+}
+
+.comments-list p {
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 6px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.comment-input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+}
+
+.comment-input:focus {
+  border-color: #7C3AED;
+}
+
+.submit-comment-btn {
+  align-self: flex-end;
+  background-color: #5F15D6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.submit-comment-btn:hover {
+  background-color: #7C3AED;
+}
+
+.comment-message {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 4px;
 #followers-link,
 #following-link {
   text-decoration: none; 
