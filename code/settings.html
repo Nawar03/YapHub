@@ -26,7 +26,7 @@
                     <a href="myprofile.html" class="profile-avatar-link">
                         <div class="profile-avatar"></div>
                     </a>
-                    <span class="header-nickname" id = "myNickname">myNickname</span>
+                    <span class="header-nickname" id = "myNickname" >myNickname</span>
                 </div>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 <a href="edit-profile.html" class="settings-btn">Change Email</a>
 
                 <div class="settings-row">
-                    <button class="settings-btn" id="logoutBtn">Logout</button>
+                    <button class="settings-btn" id="logoutBtn" onclick="sessionStorage.clear(); window.location.href='index.html';">Logout</button>
                     <button class="settings-btn settings-danger">Delete Account</button>
                 </div>
             </div>
