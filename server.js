@@ -27,7 +27,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Elmomo123!',
+  password: 'password',
   database: 'yaphub'
 });
 
