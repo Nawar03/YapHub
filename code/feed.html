@@ -107,39 +107,70 @@
         }
     }
 
-    // SEARCH BAR
-    const searchInput = document.getElementById("user-search");
-    const resultsContainer = document.getElementById("search-results");
+const searchInput = document.getElementById("user-search");
+const resultsContainer = document.getElementById("search-results");
 
-    if (searchInput) {
-        searchInput.addEventListener("keydown", async (e) => {
-            if (e.key !== "Enter") return;
-            e.preventDefault();
+let debounceTimeout;
 
-            const nickname = searchInput.value.trim();
-            if (!nickname) return;
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.trim();
 
-            try {
-                const res = await fetch(`/api/users/nickname/${encodeURIComponent(nickname)}`);
-                if (!res.ok) {
-                    if (resultsContainer) resultsContainer.innerHTML = "<p>User not found</p>";
-                    return;
-                }
-            const userData = await res.json();
+    clearTimeout(debounceTimeout);
+
+    if (!query) {
+      resultsContainer.innerHTML = "";
+      return;
+    }
+
+    debounceTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`);
+        const users = await res.json();
+
+        resultsContainer.innerHTML = "";
+
+        if (users.length === 0) {
+          resultsContainer.innerHTML = "<p>No users found</p>";
+          return;
+        }
+
+        users.forEach(user => {
+          const div = document.createElement("div");
+          div.textContent = "@" + user.nickname;
+          div.classList.add("search-item");
+
+          // clicking on name goes to their profile
+          div.addEventListener("click", async () => {
             const meRes = await fetch("/me", { credentials: "include" });
             const meData = await meRes.json();
 
-            if (meData.loggedIn && meData.user.user_id === userData.user_id) {
-                window.location.href = "myProfile.html";
+            if (meData.loggedIn && meData.user.user_id === user.user_id) {
+              window.location.href = "myProfile.html";
             } else {
-                window.location.href = `/profile.html?user_id=${encodeURIComponent(userData.user_id)}`;
-            } }
-             catch (err) {
-                console.error(err);
-                if (resultsContainer) resultsContainer.innerHTML = "<p>Server error</p>";
+              window.location.href = `/profile.html?user_id=${user.user_id}`;
             }
+          });
+
+          resultsContainer.appendChild(div);
         });
-    }
+
+      } catch (err) {
+        console.error(err);
+        resultsContainer.innerHTML = "<p>Error loading results</p>";
+      }
+    }, 300); // debounce
+  });
+} });
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-container")) {
+    resultsContainer.innerHTML = "";
+  }
+});
+const searchForm = document.querySelector('.search-container');
+searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
 });
     </script>
 </body>
