@@ -1,5 +1,6 @@
 USE yaphub;
 
+DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS follows;
 DROP TABLE IF EXISTS users;
@@ -33,7 +34,7 @@ CREATE TABLE posts (
   user_id INT NOT NULL,
   content VARCHAR(1000) NOT NULL,
   created_at DATETIME NOT NULL,
-  expires_at DATE NOT NULL,
+  expires_at DATETIME NOT NULL,
   PRIMARY KEY (post_id),
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
@@ -64,6 +65,7 @@ SET SQL_SAFE_UPDATES = 0;
 SET GLOBAL event_scheduler = ON;
 
 -- Create the auto-delete event
+DROP EVENT IF EXISTS delete_expired_posts;
 CREATE EVENT delete_expired_posts
 ON SCHEDULE EVERY 1 MINUTE
 DO
