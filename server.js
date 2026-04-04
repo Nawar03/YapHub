@@ -351,6 +351,97 @@ app.post('/comments', (req, res) => {
   });
 });
 
+// GET /trending-posts - Get posts ordered by like count
+app.get('/trending-posts', (req, res) => {
+  const sql = `
+    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname,
+      COUNT(likes.like_id) AS like_count
+    FROM posts
+    JOIN users ON posts.user_id = users.user_id
+    LEFT JOIN likes ON posts.post_id = likes.post_id
+    WHERE posts.expires_at > NOW()
+    GROUP BY posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    ORDER BY like_count DESC, posts.created_at DESC
+  `;
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json(results);
+  });
+});
+
+// GET /following-posts - Get posts from followed users
+app.get('/following-posts', (req, res) => {
+  const userId = req.query.user_id;
+  const sql = `
+    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    FROM posts
+    JOIN users ON posts.user_id = users.user_id
+    JOIN follows ON posts.user_id = follows.following_id
+    WHERE follows.follower_id = ?
+    AND posts.expires_at > NOW()
+    ORDER BY posts.created_at DESC
+  `;
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json(results);
+  });
+});
+
+// POST /likes - Add a like
+app.post('/likes', (req, res) => {
+  const { post_id, user_id } = req.body;
+  const sql = `INSERT INTO likes (post_id, user_id) VALUES (?, ?)`;
+  db.query(sql, [post_id, user_id], (err) => {
+    if (err) {
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.json({ success: false, message: 'Already liked' });
+      }
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
+  });
+});
+
+// DELETE /likes - Remove a like
+app.delete('/likes', (req, res) => {
+  const { post_id, user_id } = req.body;
+  const sql = `DELETE FROM likes WHERE post_id = ? AND user_id = ?`;
+  db.query(sql, [post_id, user_id], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    return res.json({ success: true });
+  });
+});
+
+// GET /posts/:post_id/likes - Get like count and whether user liked
+app.get('/posts/:post_id/likes', (req, res) => {
+  const postId = req.params.post_id;
+  const userId = req.query.user_id;
+  const sql = `
+    SELECT COUNT(*) AS count,
+      SUM(CASE WHEN user_id = ? THEN 1 ELSE 0 END) AS user_liked
+    FROM likes
+    WHERE post_id = ?
+  `;
+  db.query(sql, [userId, postId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ success: false, message: 'Database error' });
+    }
+    const row = results[0];
+    return res.json({ count: row.count, liked: row.user_liked > 0 });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });

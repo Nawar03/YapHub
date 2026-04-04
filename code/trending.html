@@ -48,10 +48,11 @@
 
         <!-- Center Content -->
         <main class="feed-main">
-            <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search...">
-            </div>
-            <div class="feed-content">
+            <form class="search-container">
+                <input type="text" class="search-input" id="user-search" placeholder="Search...">
+                <div id="search-results"></div>
+            </form>
+            <div id="trending-feed" style="display:flex;flex-direction:column;align-items:flex-start;gap:1rem;padding:1rem;">
             </div>
         </main>
 
@@ -69,5 +70,275 @@
         }
     </script>
     <script src="js/script.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+    // PROFILE PAGE
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get("user_id");
+
+    if (userId) loadProfile(userId);
+
+    async function loadProfile(userId) {
+        try {
+            const res = await fetch(`/api/users/${userId}`);
+            if (!res.ok) throw new Error("User not found");
+            const data = await res.json();
+
+            document.getElementById("profile-handle").textContent = `${data.first_name} ${data.last_name}`;
+            document.querySelector(".profile-handle").textContent = `@${data.nickname}`;
+            document.getElementById("following-count").textContent = `${data.following} Following`;
+            document.getElementById("followers-count").textContent = `${data.followers} Followers`;
+            document.querySelector(".profile-logo").src = data.profile_picture || "images/default-avatar.png";
+
+            const followBtn = document.getElementById("follow-btn");
+            followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+            followBtn.onclick = async () => {
+                const action = data.isFollowing ? "unfollow" : "follow";
+                const followRes = await fetch(`/api/users/${data.username}/follow`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({ action })
+                });
+                const followData = await followRes.json();
+                data.isFollowing = !data.isFollowing;
+                followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
+                document.getElementById("followers-count").textContent = `${followData.followers} Followers`;
+            };
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+const searchInput = document.getElementById("user-search");
+const resultsContainer = document.getElementById("search-results");
+
+let debounceTimeout;
+
+if (searchInput) {
+  searchInput.addEventListener("input", () => {
+    const query = searchInput.value.trim();
+
+    clearTimeout(debounceTimeout);
+
+    if (!query) {
+      resultsContainer.innerHTML = "";
+      return;
+    }
+
+    debounceTimeout = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search/users?q=${encodeURIComponent(query)}`);
+        const users = await res.json();
+
+        resultsContainer.innerHTML = "";
+
+        if (users.length === 0) {
+          resultsContainer.innerHTML = "<p>No users found</p>";
+          return;
+        }
+
+        users.forEach(user => {
+          const div = document.createElement("div");
+          div.textContent = "@" + user.nickname;
+          div.classList.add("search-item");
+
+          // clicking on name goes to their profile
+          div.addEventListener("click", async () => {
+            const meRes = await fetch("/me", { credentials: "include" });
+            const meData = await meRes.json();
+
+            if (meData.loggedIn && meData.user.user_id === user.user_id) {
+              window.location.href = "myProfile.html";
+            } else {
+              window.location.href = `/profile.html?user_id=${user.user_id}`;
+            }
+          });
+
+          resultsContainer.appendChild(div);
+        });
+
+      } catch (err) {
+        console.error(err);
+        resultsContainer.innerHTML = "<p>Error loading results</p>";
+      }
+    }, 300); // debounce
+  });
+} });
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-container")) {
+    resultsContainer.innerHTML = "";
+  }
+});
+const searchForm = document.querySelector('.search-container');
+searchForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+});
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const feedEl = document.getElementById('trending-feed');
+        const userId = sessionStorage.getItem('user_id');
+        if (!feedEl) return;
+
+        fetch('/trending-posts')
+          .then(res => res.json())
+          .then(posts => {
+            if (!Array.isArray(posts) || posts.length === 0) {
+              feedEl.innerHTML = '<p style="color:#999;padding:1rem;">No trending posts yet.</p>';
+              return;
+            }
+
+            posts.forEach(post => {
+              const postCard = document.createElement('div');
+              postCard.className = 'post-card';
+              postCard.dataset.postId = post.post_id;
+              postCard.innerHTML = `
+  <div class="post-header">
+    <div class="post-header-left">
+      <span class="post-nickname">${post.nickname}</span>
+    </div>
+    <div class="post-header-right">
+      <span class="post-time">${getTimeLeft(post.expires_at)}</span>
+    </div>
+  </div>
+  <div class="post-body">
+    <p class="post-text">${post.content}</p>
+  </div>
+  <div class="post-actions">
+    <button class="post-action-btn">👍 Like</button>
+    <button class="post-action-btn comment-toggle-btn">💬 Comment</button>
+  </div>
+  <div class="comments-section" style="display: none;">
+    <div class="comments-list"></div>
+    <div class="comment-input-row">
+      <input type="text" class="comment-input" placeholder="Write a comment...">
+      <button class="submit-comment-btn">Post</button>
+    </div>
+    <p class="comment-message"></p>
+  </div>
+`;
+
+              const postId = parseInt(post.post_id, 10);
+              const likeBtn = postCard.querySelector('.post-action-btn');
+              const toggleBtn = postCard.querySelector('.comment-toggle-btn');
+              const commentsSection = postCard.querySelector('.comments-section');
+              const commentsList = postCard.querySelector('.comments-list');
+              const submitBtn = postCard.querySelector('.submit-comment-btn');
+              const commentInput = postCard.querySelector('.comment-input');
+              const commentMessage = postCard.querySelector('.comment-message');
+
+              async function loadLikes() {
+                try {
+                  const res = await fetch(`/posts/${postId}/likes?user_id=${userId}`);
+                  const data = await res.json();
+                  likeBtn.textContent = `👍 Like ${data.count}`;
+                  if (data.liked) {
+                    likeBtn.classList.add('liked');
+                  } else {
+                    likeBtn.classList.remove('liked');
+                  }
+                  likeBtn.dataset.liked = data.liked ? 'true' : 'false';
+                } catch (err) {
+                  console.error('Error loading likes:', err);
+                }
+              }
+
+              loadLikes();
+
+              likeBtn.addEventListener('click', async () => {
+                const isLiked = likeBtn.dataset.liked === 'true';
+                try {
+                  const res = await fetch('/likes', {
+                    method: isLiked ? 'DELETE' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ post_id: postId, user_id: userId })
+                  });
+                  const data = await res.json();
+                  if (data.success || (!isLiked && data.message === 'Already liked')) {
+                    await loadLikes();
+                  }
+                } catch (err) {
+                  console.error('Error toggling like:', err);
+                }
+              });
+
+              async function loadComments() {
+                try {
+                  const res = await fetch(`/posts/${postId}/comments`);
+                  const comments = await res.json();
+                  commentsList.innerHTML = '';
+                  comments.forEach(comment => {
+                    const p = document.createElement('p');
+                    p.style.display = 'flex';
+                    p.style.justifyContent = 'flex-start';
+                    p.style.alignItems = 'center';
+                    p.innerHTML = `
+                      <span style="font-size:12px;color:#6b7280;margin-right:8px;white-space:nowrap;font-weight:bold;">@${comment.nickname}</span>
+                      <span style="flex:1;">${comment.content}</span>
+                      <span style="font-size:11px;color:#9ca3af;margin-left:12px;white-space:nowrap;">${getCommentAge(comment.created_at)}</span>
+                    `;
+                    commentsList.appendChild(p);
+                  });
+                } catch (err) {
+                  commentMessage.textContent = 'Error loading comments';
+                }
+              }
+
+              toggleBtn.addEventListener('click', async () => {
+                const isHidden = commentsSection.style.display === 'none' || commentsSection.style.display === '';
+                if (isHidden) {
+                  commentsSection.style.display = 'block';
+                  await loadComments();
+                } else {
+                  commentsSection.style.display = 'none';
+                }
+              });
+
+              submitBtn.addEventListener('click', async () => {
+                const content = commentInput.value.trim();
+                if (!userId) {
+                  commentMessage.textContent = 'You must be logged in to comment';
+                  return;
+                }
+                if (!content) {
+                  commentMessage.textContent = 'Comment cannot be empty';
+                  return;
+                }
+                try {
+                  const res = await fetch('/comments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ post_id: postId, user_id: userId, content })
+                  });
+                  const result = await res.json();
+                  if (result.success) {
+                    commentInput.value = '';
+                    commentMessage.textContent = 'Comment added';
+                    await loadComments();
+                  } else {
+                    commentMessage.textContent = result.message || 'Error adding comment';
+                  }
+                } catch (err) {
+                  commentMessage.textContent = 'Network error';
+                }
+              });
+
+              feedEl.appendChild(postCard);
+            });
+
+            setInterval(() => {
+              const timeSpans = feedEl.querySelectorAll('.post-time');
+              posts.forEach((post, index) => {
+                if (timeSpans[index]) {
+                  timeSpans[index].textContent = getTimeLeft(post.expires_at);
+                }
+              });
+            }, 60000);
+          })
+          .catch(err => console.error('Error loading trending posts:', err));
+      });
+    </script>
 </body>
 </html>
