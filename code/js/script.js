@@ -126,7 +126,7 @@ async function loadUser() {
     const data = await res.json();
 
     if (data.loggedIn) {
-      const nicknameHeader = document.getElementById("headerNickname");
+      const nicknameHeader = document.getElementById("myNickname");
       if (nicknameHeader) {
         nicknameHeader.textContent = data.user.nickname; }
     }
@@ -212,6 +212,43 @@ if (followBtn) {
           const commentInput = postCard.querySelector(".comment-input");
           const commentMessage = postCard.querySelector(".comment-message");
           const postId = parseInt(post.post_id, 10);
+          const likeBtn = postCard.querySelector(".post-action-btn");
+          const currentUserId = sessionStorage.getItem('user_id');
+
+          async function loadLikes() {
+            try {
+              const res = await fetch(`/posts/${postId}/likes?user_id=${currentUserId}`);
+              const data = await res.json();
+              likeBtn.textContent = `👍 Like ${data.count}`;
+              if (data.liked) {
+                likeBtn.classList.add('liked');
+              } else {
+                likeBtn.classList.remove('liked');
+              }
+              likeBtn.dataset.liked = data.liked ? 'true' : 'false';
+            } catch (err) {
+              console.error('Error loading likes:', err);
+            }
+          }
+
+          loadLikes();
+
+          likeBtn.addEventListener('click', async () => {
+            const isLiked = likeBtn.dataset.liked === 'true';
+            try {
+              const res = await fetch('/likes', {
+                method: isLiked ? 'DELETE' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ post_id: postId, user_id: currentUserId })
+              });
+              const data = await res.json();
+              if (data.success || (!isLiked && data.message === 'Already liked')) {
+                await loadLikes();
+              }
+            } catch (err) {
+              console.error('Error toggling like:', err);
+            }
+          });
 
           async function loadComments() {
             try {

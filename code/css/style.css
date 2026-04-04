@@ -565,6 +565,11 @@ nav {
     color: #7C3AED;
 }
 
+.post-action-btn.liked {
+  color: #5F15D6;
+  font-weight: bold;
+}
+
 /* Right Sidebar - 20% width */
 .feed-sidebar-right {
     flex: 0 0 20%;
