@@ -6,7 +6,7 @@ const multer = require('multer');
 const path = require('path');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -28,10 +28,11 @@ app.use(express.static('code'));
 app.use('/images', express.static('images'));
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'Elmomo123!',
-  database: 'yaphub'
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT || 3306
 });
 
 // Test route
