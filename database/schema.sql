@@ -26,3 +26,19 @@ CREATE TABLE comments (
   content VARCHAR(500),
   created_at DATE
 );
+-- Bios table
+CREATE TABLE bios (
+    bio_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    bio VARCHAR(200),
+    FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+-- Profile picture table
+CREATE TABLE profile_pictures (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);

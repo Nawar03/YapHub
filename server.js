@@ -2,12 +2,15 @@ const express = require('express');
 const mysql = require('mysql2');
 const crypto = require('crypto');
 const session = require('express-session');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
 const port = 3000;
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 app.use(
   session({
@@ -27,7 +30,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'password',
+  password: 'Elmomo123!',
   database: 'yaphub'
 });
 
@@ -165,9 +168,13 @@ app.get("/api/users/:user_id", (req, res) => {
       u.nickname,
       u.first_name,
       u.last_name,
+      u.email,
+      b.bio,
       (SELECT COUNT(*) FROM follows WHERE following_id = u.user_id) AS followers,
-      (SELECT COUNT(*) FROM follows WHERE follower_id = u.user_id) AS following
+      (SELECT COUNT(*) FROM follows WHERE follower_id = u.user_id) AS following,
+      (SELECT filepath FROM profile_pictures WHERE user_id = u.user_id ORDER BY uploaded_at DESC LIMIT 1) AS filepath
      FROM users u
+     LEFT JOIN bios b ON u.user_id = b.user_id
      WHERE u.user_id = ?`,
     [userId],
     (err, results) => {
@@ -176,10 +183,119 @@ app.get("/api/users/:user_id", (req, res) => {
         return res.status(500).json({ error: "Server error" }); }
       if (results.length === 0) {
         return res.status(404).json({ error: "User not found" }); }
-      results[0].is_following = Number(results[0].is_following);
       res.json(results[0]);
     }
   );
+});
+function hashPassword(password) {
+  return crypto.createHash("sha256").update(password).digest("hex");
+}
+
+// UPDATING USER INFO
+app.put("/api/users/:user_id", async (req, res) => {
+  const userId = req.params.user_id;
+  const { first_name, last_name, nickname, email, password, bio } = req.body;
+
+  try {
+    // Start building query
+    let query = `
+      UPDATE users 
+      SET first_name=?, last_name=?, nickname=?, email=?
+    `;
+    let values = [first_name, last_name, nickname, email];
+
+    // Only update password if provided
+    if (password) {
+      const hashedPassword = hashPassword(password);
+      query += `, password=?`;
+      values.push(hashedPassword);
+    }
+
+    query += ` WHERE user_id=?`;
+    values.push(userId);
+
+    // Update users table
+    await db.promise().query(query, values);
+
+    // Update bio table
+    await db.promise().query(
+      `INSERT INTO bios (user_id, bio)
+       VALUES (?, ?)
+       ON DUPLICATE KEY UPDATE bio = VALUES(bio)`,
+      [userId, bio]
+    );
+
+    res.json({ message: "Profile updated successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//Storage for images
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/avatars');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage: storage });
+
+const fs = require('fs');
+
+app.post('/api/users/:user_id/avatar', upload.single('avatar'), async (req, res) => {
+  const userId = req.params.user_id;
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const filePath = `/uploads/avatars/${req.file.filename}`;
+
+  try {
+    // Get old profile picture
+    const [rows] = await db.promise().query(
+      `SELECT filepath FROM profile_pictures WHERE user_id = ?`,
+      [userId]
+    );
+
+    // Delete old file from disk
+    if (rows.length > 0 && rows[0].filepath) {
+      const oldPath = path.join(
+        __dirname,
+        rows[0].filepath.replace('/uploads/', 'uploads/')
+      );
+
+      fs.unlink(oldPath, (err) => {
+        if (err) {
+          console.log("Could not delete old image:", err.message);
+        }
+      });
+    }
+
+    // Delete old DB row
+    await db.promise().query(
+      `DELETE FROM profile_pictures WHERE user_id = ?`,
+      [userId]
+    );
+
+    // Insert new profile picture
+    await db.promise().query(
+      `INSERT INTO profile_pictures (user_id, filename, filepath)
+       VALUES (?, ?, ?)`,
+      [userId, req.file.filename, filePath]
+    );
+
+    res.json({ message: 'Profile picture updated', path: filePath });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // FOLLOW ROUTE

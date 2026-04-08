@@ -22,7 +22,7 @@
             <div class="header-right">
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
-                        <div class="profile-avatar"></div>
+                        <div><img id="headerAvatar" class="profile-avatar" src="images/logo2.png" alt="Avatar"></div>
                     </a>
                     <span class="header-nickname" id="myNickname">myNickname</span>
                 </div>
@@ -86,7 +86,7 @@
             document.querySelector(".profile-handle").textContent = `@${data.nickname}`;
             document.getElementById("following-count").textContent = `${data.following} Following`;
             document.getElementById("followers-count").textContent = `${data.followers} Followers`;
-            document.querySelector(".profile-logo").src = data.profile_picture || "images/default-avatar.png";
+            document.getElementById("profilePic").src = data.filepath || "images/logo2.png";
 
             const followBtn = document.getElementById("follow-btn");
             followBtn.textContent = data.isFollowing ? "Unfollow" : "Follow";
@@ -172,6 +172,31 @@ const searchForm = document.querySelector('.search-container');
 searchForm.addEventListener('submit', (e) => {
     e.preventDefault();
 });
+    </script>
+    <script>
+        async function loadMyProfile() {
+
+  try {
+
+    const meRes = await fetch("/me", {
+      credentials: "include"
+    });
+
+    const meData = await meRes.json();
+
+    const userId = meData.user.user_id;
+
+    const res = await fetch(`/api/users/${userId}`);
+    const data = await res.json();
+
+    document.getElementById("profilePic").src =
+        data.filepath || "images/logo2.png";
+
+  } catch (err) {
+    console.error("Profile load error:", err);
+  }
+
+}
     </script>
 </body>
 </html>

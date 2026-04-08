@@ -24,7 +24,7 @@
             <div class="header-right">
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
-                        <div class="profile-avatar"></div>
+                        <div><img id="headerAvatar" class="profile-avatar" src="images/logo2.png" alt="Avatar"></div>
                     </a>
                     <span class="header-nickname" id = "myNickname" >myNickname</span>
                 </div>
@@ -56,15 +56,13 @@
                 <div class="profile-header">
                     <!-- Left Side: Profile Info -->
                     <div class="profile-left">
-                        <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <img id="profilePic" src="images/logo2.png" alt="Profile Logo" class="profile-logo">
                         <div class="profile-info">
                             <div class="profile-name-row">
                                 <h2 class="profile-name" id="profile-handle">Name</h2>
-                                <div class="profile-desc">
-                                    <p>Description</p>
-                                </div>
                             </div>
                             <p class="profile-handle">@nickname</p>
+                            <p class="profile-desc" id="profile-bio"></p>
                             <div class="profile-stats">
                                 <a id="following-link" href="#">
                                 <span class="stat" id="following-count">0 Following</span>
@@ -107,6 +105,12 @@ fetch(`/api/users/${userId}`, {
 
     document.getElementById("following-count").textContent =
       data.following + " Following";
+    
+    document.getElementById("profile-bio").textContent =
+      data.bio || "No bio yet";
+
+    document.getElementById("profilePic").src =
+        data.filepath || "images/logo2.png";
 
  })
 async function loadFollowButton(profileUserId) {

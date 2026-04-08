@@ -326,4 +326,33 @@ if (followBtn) {
       })
       .catch(err => console.error('Error loading posts:', err));
   }
+  
+async function loadHeaderAvatar() {
+  try {
+    // Fetch the current user
+    const meRes = await fetch("/me", { credentials: "include" });
+    if (!meRes.ok) return; // user not logged in
+    const meData = await meRes.json();
+    const userId = meData.user.user_id;
+
+    // Fetch user info including profile picture
+    const res = await fetch(`/api/users/${userId}`);
+    if (!res.ok) return;
+    const data = await res.json();
+
+    // Set avatar
+    const headerAvatar = document.getElementById("headerAvatar");
+    if (headerAvatar) headerAvatar.src = data.filepath || "images/logo2.png";
+
+    // Optionally set nickname
+    const headerNickname = document.getElementById("headerNickname");
+    if (headerNickname) headerNickname.textContent = data.nickname || "User";
+
+  } catch (err) {
+    console.error("Failed to load header avatar:", err);
+  }
+}
+
+// Call it on page load
+window.addEventListener("DOMContentLoaded", loadHeaderAvatar);
 });
