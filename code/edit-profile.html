@@ -24,7 +24,7 @@
             <div class="header-right">
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
-                        <div class="profile-avatar"></div>
+                        <div><img id="headerAvatar" class="profile-avatar" src="images/logo2.png" alt="Avatar"></div>
                     </a>
                     <span class="header-nickname" id = "myNickname" >myNickname</span>
                 </div>
@@ -51,33 +51,33 @@
             <div class="profile-form">
                 <!-- Description Field -->
                 <div class="profile-row">
-                    <textarea class="profile-input profile-textarea" placeholder="Description"></textarea>
+                    <textarea id="bio" class="profile-input profile-textarea" placeholder="Description"></textarea>
                 </div>
 
                 <!-- First Name + Last Name -->
                 <div class="profile-row profile-row-two">
-                    <input type="text" class="profile-input" placeholder="First Name">
-                    <input type="text" class="profile-input" placeholder="Last Name">
+                    <input id="first_name" type="text" class="profile-input" placeholder="First Name">
+                    <input id="last_name" type="text" class="profile-input" placeholder="Last Name">
                 </div>
 
                 <!-- Nickname Field -->
                 <div class="profile-row">
-                    <input type="text" class="profile-input" placeholder="Nickname">
+                    <input id="nickname" type="text" class="profile-input" placeholder="Nickname">
                 </div>
 
                 <!-- Email Field -->
                 <div class="profile-row">
-                    <input type="email" class="profile-input" placeholder="Email">
+                    <input id="email" type="email" class="profile-input" placeholder="Email">
                 </div>
 
                 <!-- Password Field -->
                 <div class="profile-row">
-                    <input type="password" class="profile-input" placeholder="Password">
+                    <input id="password" type="password" class="profile-input" placeholder="Password">
                 </div>
 
                 <!-- Action Buttons -->
                 <div class="profile-actions">
-                    <button class="btn btn-save">Save All Changes</button>
+                    <button id="save-btn" class="btn btn-save">Save All Changes</button>
                     <a href="myprofile.html" class="btn btn-cancel">Cancel</a>
                 </div>
             </div>
@@ -92,5 +92,62 @@
     </div>
 
     <script src="js/script.js"></script>
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+  let userId;
+
+  fetch("/me", { credentials: "include" })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.loggedIn) {
+        window.location.href = "/login.html";
+        return;
+      }
+      userId = data.user.user_id;
+
+      return fetch(`/api/users/${userId}`, { credentials: "include" });
+    })
+    .then(res => res.json())
+    .then(profile => {
+      document.getElementById("bio").value = profile.bio || "";
+      document.getElementById("first_name").value = profile.first_name;
+      document.getElementById("last_name").value = profile.last_name;
+      document.getElementById("nickname").value = profile.nickname;
+      document.getElementById("email").value = profile.email;
+      document.getElementById("password").value = profile.password;
+
+    })
+    .catch(err => console.error(err));
+
+  const saveBtn = document.getElementById("save-btn");
+  saveBtn.addEventListener("click", () => {
+    if (!userId) {
+      alert("User not loaded yet. Try again.");
+      return;
+    }
+
+    const updatedData = {
+      bio: document.getElementById("bio").value,
+      first_name: document.getElementById("first_name").value,
+      last_name: document.getElementById("last_name").value,
+      nickname: document.getElementById("nickname").value,
+      email: document.getElementById("email").value,
+      password: document.getElementById("password").value
+    };
+
+    fetch(`/api/users/${userId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(updatedData)
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || "Profile updated");
+      })
+      .catch(err => console.error(err));
+  });
+});
+    </script>
 </body>
 </html>

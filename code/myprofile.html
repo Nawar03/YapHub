@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YapHub - My Profile</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body class="feed-page">
     <!-- Header -->
@@ -24,7 +26,7 @@
             <div class="header-right">
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
-                        <div class="profile-avatar"></div>
+                        <div><img id="headerAvatar" class="profile-avatar" src="images/logo2.png" alt="Avatar"></div>
                     </a>
                     <span class="header-nickname" id = "myNickname" >myNickname</span>
                 </div>
@@ -56,15 +58,14 @@
                 <div class="profile-header">
                     <!-- Left Side: Profile Info -->
                     <div class="profile-left">
-                        <img src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <img id="profilePic" src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <input type="file" id="avatarInput" style="display:none;" accept="image/*">
                         <div class="profile-info">
                             <div class="profile-name-row">
                                 <h2 class="profile-name"  id="profile-handle">Name</h2>
-                                <div class="profile-desc">
-                                    <p>Description</p>
-                                </div>
                             </div>
                             <p class="profile-handle">@nickname</p>
+                            <p class="profile-desc" id="profile-bio"></p>
                             <div class="profile-stats">
                                 <a id="following-link" href="#">
                                 <span class="stat" id="following-count">0 Following</span>
@@ -86,6 +87,23 @@
         </aside>
     </div>
 
+<div id="avatarModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Update Profile Picture</h3>
+
+    <input type="file" id="modalAvatarInput" accept="image/*"><br><br>
+
+    <div class="cropper-container">
+      <img id="previewImage" style="max-width:100%; display:none;" />
+    </div>
+
+    <div class="modal-buttons">
+        <button id="saveAvatarBtn">Save</button>
+        <button id="cancelAvatarBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
     <script>
         if (!sessionStorage.getItem('user_id')) {
             window.location.href = 'index.html';
@@ -93,6 +111,23 @@
     </script>
     <script src="js/script.js"></script>
     <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const profileUserId = params.get("user_id") || sessionStorage.getItem("user_id");
+
+  if (profileUserId) {
+    const followersLink = document.getElementById("followers-link");
+    const followingLink = document.getElementById("following-link");
+
+    if (followersLink) {
+      followersLink.href = `followersList.html?user_id=${profileUserId}`;
+    }
+    if (followingLink) {
+      followingLink.href = `followingList.html?user_id=${profileUserId}`;
+    }
+  }
+});
+
 async function loadMyProfile() {
 
   try {
@@ -120,30 +155,102 @@ async function loadMyProfile() {
     document.getElementById("following-count").textContent =
       data.following + " Following";
 
+    document.getElementById("profile-bio").textContent =
+      data.bio || "No bio yet";
+
+    document.getElementById("profilePic").src =
+        data.filepath || "images/logo2.png";
+        
+    const headerAvatar = document.getElementById("headerAvatar");
+        if (headerAvatar) {
+            headerAvatar.src = data.filepath || "images/logo2.png";
+        }
+
   } catch (err) {
     console.error("Profile load error:", err);
   }
 
 }
-
 loadMyProfile();
-    </script>
-    <script>
+
 document.addEventListener("DOMContentLoaded", () => {
-  const params = new URLSearchParams(window.location.search);
-  const profileUserId = params.get("user_id") || sessionStorage.getItem("user_id");
+  const profilePic = document.getElementById('profilePic');
+  const modal = document.getElementById('avatarModal');
+  const fileInput = document.getElementById('modalAvatarInput');
+  const preview = document.getElementById('previewImage');
+  const saveBtn = document.getElementById('saveAvatarBtn');
+  const cancelBtn = document.getElementById('cancelAvatarBtn');
+  let cropper;
 
-  if (profileUserId) {
-    const followersLink = document.getElementById("followers-link");
-    const followingLink = document.getElementById("following-link");
+  // Open modal
+  profilePic.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
 
-    if (followersLink) {
-      followersLink.href = `followersList.html?user_id=${profileUserId}`;
+  // Load image into cropper
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+
+      // Destroy old cropper
+      if (cropper) cropper.destroy();
+
+      // Initialize Cropper
+      cropper = new Cropper(preview, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Save cropped image
+  saveBtn.addEventListener('click', async () => {
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({
+      width: 300,
+      height: 300
+    });
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+    const userId = sessionStorage.getItem("user_id");
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.png');
+
+    const res = await fetch(`/api/users/${userId}/avatar`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (data.path) {
+      profilePic.src = data.path;
+      modal.style.display = 'none';
+      fileInput.value = "";
+      preview.style.display = "none";
+      cropper.destroy();
     }
-    if (followingLink) {
-      followingLink.href = `followingList.html?user_id=${profileUserId}`;
-    }
-  }
+  });
+
+  // Cancel
+  cancelBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    fileInput.value = "";
+    preview.style.display = "none";
+    if (cropper) cropper.destroy();
+  });
 });
     </script>
 </body>
