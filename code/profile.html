@@ -49,14 +49,16 @@
         <!-- Center Content -->
         <main class="feed-main">
             <div class="profile-header-container">
-                <!-- Follow Button (Top-Right) -->
-                <button class="btn edit-profile-btn" id="followBtn">Follow</button>
-
+              <div class="profile-banner">
+                    <img id="profile-banner" src="images/default-banner.jpg" alt="Banner">
+                </div>
                 <!-- Profile Header Content -->
                 <div class="profile-header">
                     <!-- Left Side: Profile Info -->
                     <div class="profile-left">
                         <img id="profilePic" src="images/logo2.png" alt="Profile Logo" class="profile-logo">
+                        <!-- Follow Button (Top-Right) -->
+                  <button class="btn edit-profile-btn" id="followBtn">Follow</button>
                         <div class="profile-info">
                             <div class="profile-name-row">
                                 <h2 class="profile-name" id="profile-handle">Name</h2>
@@ -111,6 +113,9 @@ fetch(`/api/users/${userId}`, {
 
     document.getElementById("profilePic").src =
         data.filepath || "images/logo2.png";
+
+    document.getElementById("profile-banner").src =
+      data.banner_filepath || "images/default-banner.jpg";
 
  })
 async function loadFollowButton(profileUserId) {

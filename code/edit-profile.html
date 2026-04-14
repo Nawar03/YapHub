@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YapHub - Edit Profile</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body class="feed-page">
     <!-- Header -->
@@ -75,6 +77,21 @@
                     <input id="password" type="password" class="profile-input" placeholder="Password">
                 </div>
 
+                <!-- Profile and Banner pic Field -->
+                <div class="profile-media-buttons">
+
+                    <button type="button" class="settings-btn" id="changeAvatarBtn">
+                        Change Profile Picture
+                    </button>
+
+                    <br>
+
+                    <button type="button" class="settings-btn" id="changeBannerBtn">
+                        Change Banner
+                    </button>
+
+                </div>
+
                 <!-- Action Buttons -->
                 <div class="profile-actions">
                     <button id="save-btn" class="btn btn-save">Save All Changes</button>
@@ -90,6 +107,34 @@
             </div>
         </aside>
     </div>
+
+<div id="avatarModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Update Profile Picture</h3>
+    <input type="file" id="modalAvatarInput" accept="image/*"><br><br>
+    <div class="cropper-container">
+      <img id="previewImage" style="max-width:100%; display:none;" />
+    </div>
+    <div class="modal-buttons">
+        <button id="saveAvatarBtn">Save</button>
+        <button id="cancelAvatarBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="bannerModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Update Banner Picture</h3>
+    <input type="file" id="bannerInput" accept="image/*">
+<div class="cropper-container">
+    <img id="bannerPreview" style="max-width:100%; display:none;" />
+</div>
+<div class="modal-buttons">
+    <button id="saveBannerBtn">Save</button>
+    <button id="cancelBannerBtn">Cancel</button>
+</div>
+  </div>
+</div>
 
     <script src="js/script.js"></script>
     <script>
@@ -147,6 +192,195 @@
       })
       .catch(err => console.error(err));
   });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const profilePic = document.getElementById('profilePic');
+  const modal = document.getElementById('avatarModal');
+  const fileInput = document.getElementById('modalAvatarInput');
+  const preview = document.getElementById('previewImage');
+  const changeBtn = document.getElementById('changeAvatarBtn');
+  const saveBtn = document.getElementById('saveAvatarBtn');
+  const cancelBtn = document.getElementById('cancelAvatarBtn');
+  let cropper;
+
+  // Open modal
+  changeBtn.addEventListener('click', () => {
+    modal.style.display = 'flex';
+  });
+
+  // Load image into cropper
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+
+      // Destroy old cropper
+      if (cropper) cropper.destroy();
+
+      // Initialize Cropper
+      cropper = new Cropper(preview, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true
+      });
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Save cropped image
+  saveBtn.addEventListener('click', async () => {
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({
+      width: 300,
+      height: 300
+    });
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+
+    const userId = sessionStorage.getItem("user_id");
+    const formData = new FormData();
+    formData.append('avatar', blob, 'avatar.png');
+
+    const res = await fetch(`/api/users/${userId}/avatar`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      const headerAvatar = document.getElementById('headerAvatar');
+        if (data.path) {
+        headerAvatar.src = data.path + "?t=" + new Date().getTime();
+        }
+      alert("Profile picture updated!");
+      modal.style.display = 'none';
+      fileInput.value = "";
+      preview.style.display = "none";
+      cropper.destroy();
+    }
+  });
+
+  // Cancel
+  cancelBtn.addEventListener('click', () => {
+    modal.style.display = 'none';
+    fileInput.value = "";
+    preview.style.display = "none";
+    if (cropper) cropper.destroy();
+  });
+
+  const bannerPic = document.getElementById('bannerPic');
+  const bannerModal = document.getElementById('bannerModal');
+  const bannerInput = document.getElementById('bannerInput');
+  const bannerPreview = document.getElementById('bannerPreview');
+  const changeBannerBtn = document.getElementById('changeBannerBtn');
+  const saveBannerBtn = document.getElementById('saveBannerBtn');
+  const cancelBannerBtn = document.getElementById('cancelBannerBtn');
+  let bannerCropper;
+
+  changeBannerBtn.addEventListener('click', () => {
+    bannerModal.style.display = 'flex'; });
+
+bannerInput.addEventListener('change', () => {
+  const file = bannerInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    bannerPreview.src = e.target.result;
+    bannerPreview.style.display = 'block';
+
+    // destroy old cropper safely
+    if (bannerCropper) {
+      bannerCropper.destroy();
+      bannerCropper = null;
+    }
+
+    // wait 50ms so DOM updates before Cropper init
+    setTimeout(() => {
+      bannerCropper = new Cropper(bannerPreview, {
+        aspectRatio: 3 / 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        movable: true,
+        zoomable: true
+      });
+    }, 50);
+  };
+
+  reader.readAsDataURL(file);
+});
+
+saveBannerBtn.addEventListener('click', async () => {
+  if (!bannerCropper) {
+    alert("Select a banner image first!");
+    return;
+  }
+
+  try {
+    const canvas = bannerCropper.getCroppedCanvas({
+      width: 1200,
+      height: 400
+    });
+
+    const blob = await new Promise(resolve =>
+      canvas.toBlob(resolve, 'image/png')
+    );
+
+    const formData = new FormData();
+    formData.append('banner', blob, 'banner.png');
+
+    const userId = sessionStorage.getItem("user_id");
+
+    const res = await fetch(`/api/users/${userId}/banner`, {
+      method: 'POST',
+      body: formData,
+      credentials: 'include'
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Upload failed");
+    }
+
+    const bannerImg = document.getElementById("profileBanner");
+
+    if (data.path && bannerImg) {
+      bannerImg.src = data.path + "?t=" + Date.now();
+    }
+
+    alert("Banner updated!");
+    bannerModal.style.display = 'none';
+    bannerInput.value = "";
+    bannerPreview.style.display = "none";
+
+    if (bannerCropper) {
+      bannerCropper.destroy();
+      bannerCropper = null;
+    }
+
+  } catch (err) {
+    console.error("Banner upload failed:", err);
+    alert("Something went wrong uploading banner");
+  }
+});
+
+cancelBannerBtn.addEventListener('click', () => {
+  bannerModal.style.display = 'none';
+  bannerInput.value = "";
+  bannerPreview.style.display = "none";
+  if (bannerCropper) bannerCropper.destroy();
+});
 });
     </script>
 </body>
