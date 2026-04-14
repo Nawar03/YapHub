@@ -30,7 +30,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Elmomo123!',
+  password: 'marwip777',
   database: 'yaphub'
 });
 
@@ -555,6 +555,27 @@ app.get('/posts/:post_id/likes', (req, res) => {
     }
     const row = results[0];
     return res.json({ count: row.count, liked: row.user_liked > 0 });
+  });
+});
+
+app.get('/api/suggestions/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const sql = `
+    SELECT user_id, nickname
+    FROM users
+    WHERE user_id != ?
+    AND user_id NOT IN (
+      SELECT following_id FROM follows WHERE follower_id = ?
+    )
+    ORDER BY RAND()
+    LIMIT 5
+  `;
+  db.query(sql, [userId, userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json([]);
+    }
+    res.json(results);
   });
 });
 
