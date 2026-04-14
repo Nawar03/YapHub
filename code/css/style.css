@@ -1133,6 +1133,7 @@ nav {
   background: #f0f0f0;
 }
 
+<<<<<<< HEAD
 .modal {
   display: none;
   position: fixed;
@@ -1200,6 +1201,8 @@ nav {
   color: #fff;
 }
 
+=======
+>>>>>>> 079da18df8589268fff44276cd3076c19f852e00
 .suggestions-box {
   background-color: transparent;
   border: none;

@@ -93,6 +93,7 @@
     </div>
 
     <script src="js/script.js"></script>
+<<<<<<< HEAD
     <script>
   document.addEventListener("DOMContentLoaded", () => {
   let userId;
@@ -150,6 +151,8 @@
   });
 });
     </script>
+=======
+>>>>>>> 079da18df8589268fff44276cd3076c19f852e00
 <script>
 (function() {
   const userId = sessionStorage.getItem('user_id');
@@ -168,6 +171,10 @@
         const item = document.createElement('div');
         item.className = 'suggestion-item';
         item.innerHTML = `
+<<<<<<< HEAD
+=======
+          <div class="suggestion-avatar"></div>
+>>>>>>> 079da18df8589268fff44276cd3076c19f852e00
           <span class="suggestion-nickname">${user.nickname}</span>
           <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
         `;
