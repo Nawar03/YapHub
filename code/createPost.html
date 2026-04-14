@@ -46,7 +46,7 @@
             <div class="post-card" style="display: flex; flex-direction: column; height: 400px;">
                 <div class="post-header">
                     <div class="post-header-left" style="display: flex; align-items: center;">
-                        <img src="images/logo2.png" style="width:30px; height:30px; border-radius:50%;">
+                        <img id="profilePic" src="images/logo2.png" style="width:30px; height:30px; border-radius:50%;">
                         <span id="postNickname" style="margin-left: 8px; font-weight: bold;"></span>
                     </div>
                     <div class="post-header-right">
@@ -105,6 +105,30 @@
             alert('Network error: ' + err.message);
           }
         };
+async function loadPFP() {
+  try {
+
+    const meRes = await fetch("/me", {
+      credentials: "include"
+    });
+
+    const meData = await meRes.json();
+
+    const userId = meData.user.user_id;
+
+    const res = await fetch(`/api/users/${userId}`);
+    const data = await res.json();
+
+
+    document.getElementById("profilePic").src =
+        data.filepath || "images/logo2.png";
+
+  } catch (err) {
+    console.error("Profile pic error", err);
+  }
+
+}
+loadPFP();
     </script>
 <script>
 (function() {

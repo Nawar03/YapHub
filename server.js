@@ -172,7 +172,8 @@ app.get("/api/users/:user_id", (req, res) => {
       b.bio,
       (SELECT COUNT(*) FROM follows WHERE following_id = u.user_id) AS followers,
       (SELECT COUNT(*) FROM follows WHERE follower_id = u.user_id) AS following,
-      (SELECT filepath FROM profile_pictures WHERE user_id = u.user_id ORDER BY uploaded_at DESC LIMIT 1) AS filepath
+      (SELECT filepath FROM profile_pictures WHERE user_id = u.user_id ORDER BY uploaded_at DESC LIMIT 1) AS filepath,
+      (SELECT filepath FROM banner_pictures WHERE user_id = u.user_id ORDER BY uploaded_at DESC LIMIT 1) AS banner_filepath
      FROM users u
      LEFT JOIN bios b ON u.user_id = b.user_id
      WHERE u.user_id = ?`,
@@ -245,8 +246,22 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+//Storage for banners
+const bannerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/banners');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+
+const uploadBanner = multer({ storage: bannerStorage });
+
 const fs = require('fs');
 
+//route for profile picture
 app.post('/api/users/:user_id/avatar', upload.single('avatar'), async (req, res) => {
   const userId = req.params.user_id;
 
@@ -291,6 +306,56 @@ app.post('/api/users/:user_id/avatar', upload.single('avatar'), async (req, res)
     );
 
     res.json({ message: 'Profile picture updated', path: filePath });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+//route for banner pictures
+app.post('/api/users/:user_id/banner', uploadBanner.single('banner'), async (req, res) => {
+  const userId = req.params.user_id;
+
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const filePath = `/uploads/banners/${req.file.filename}`;
+
+  try {
+    // Get old banner
+    const [rows] = await db.promise().query(
+      `SELECT filepath FROM banner_pictures WHERE user_id = ?`,
+      [userId]
+    );
+
+    // Delete old file
+    if (rows.length > 0 && rows[0].filepath) {
+      const oldPath = path.join(
+        __dirname,
+        rows[0].filepath.replace('/uploads/', 'uploads/')
+      );
+
+      fs.unlink(oldPath, (err) => {
+        if (err) console.log("Could not delete old banner:", err.message);
+      });
+    }
+
+    // Remove old DB record
+    await db.promise().query(
+      `DELETE FROM banner_pictures WHERE user_id = ?`,
+      [userId]
+    );
+
+    // Insert new banner
+    await db.promise().query(
+      `INSERT INTO banner_pictures (user_id, filename, filepath)
+       VALUES (?, ?, ?)`,
+      [userId, req.file.filename, filePath]
+    );
+
+    res.json({ message: 'Banner updated', path: filePath });
 
   } catch (err) {
     console.error(err);

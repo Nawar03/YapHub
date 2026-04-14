@@ -36,7 +36,16 @@ CREATE TABLE bios (
 -- Profile picture table
 CREATE TABLE profile_pictures (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL UNIQUE,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+-- Banner pictures table
+CREATE TABLE banner_pictures (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
     filename VARCHAR(255) NOT NULL,
     filepath VARCHAR(255) NOT NULL,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

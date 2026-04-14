@@ -737,14 +737,16 @@ nav {
 /* Profile Header Container */
 .profile-header-container {
     background-color: white;
-    padding: 2rem;
+    margin-left: -2rem;
+    margin-right: -2rem;
+    width: calc(100% + 4rem);
     position: relative;
 }
 
 .edit-profile-btn {
     position: absolute;
-    top: 2rem;
-    right: 2rem;
+    top: 75px;
+    right: 12px;
     background-color: #7C3AED;
     color: white;
 }
@@ -1133,7 +1135,6 @@ nav {
   background: #f0f0f0;
 }
 
-<<<<<<< HEAD
 .modal {
   display: none;
   position: fixed;
@@ -1201,8 +1202,42 @@ nav {
   color: #fff;
 }
 
-=======
->>>>>>> 079da18df8589268fff44276cd3076c19f852e00
+#saveBannerBtn {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+#cancelBannerBtn {
+  background-color: #f44336;
+  color: #fff;
+}
+
+.profile-banner {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    margin-top: -2rem;
+}
+
+.profile-banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-left {
+    position: relative;
+    margin-top: -60px;
+    padding-left: 20px;
+}
+
+/* Make profile pic overlap banner */
+.profile-logo {
+    border: 4px solid white;
+    background: white;
+}
+
 .suggestions-box {
   background-color: transparent;
   border: none;

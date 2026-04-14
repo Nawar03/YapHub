@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YapHub - My Profile</title>
     <link rel="stylesheet" href="css/style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body class="feed-page">
     <!-- Header -->
@@ -51,15 +49,18 @@
         <!-- Center Content -->
         <main class="feed-main">
             <div class="profile-header-container">
-                <!-- Edit Profile Button (Top-Right) -->
-                <a href="edit-profile.html" class="btn edit-profile-btn">Edit Profile</a>
+                <div class="profile-banner">
+                    <img id="profile-banner" src="images/default-banner.jpg" alt="Banner">
+                </div>
 
                 <!-- Profile Header Content -->
                 <div class="profile-header">
                     <!-- Left Side: Profile Info -->
                     <div class="profile-left">
                         <img id="profilePic" src="images/logo2.png" alt="Profile Logo" class="profile-logo">
-                        <input type="file" id="avatarInput" style="display:none;" accept="image/*">
+                        <!-- <input type="file" id="avatarInput" style="display:none;" accept="image/*"> -->
+                        <!-- Edit Profile Button (Top-Right) -->
+                    <a href="edit-profile.html" class="btn edit-profile-btn">Edit Profile</a>
                         <div class="profile-info">
                             <div class="profile-name-row">
                                 <h2 class="profile-name"  id="profile-handle">Name</h2>
@@ -166,6 +167,8 @@ async function loadMyProfile() {
         if (headerAvatar) {
             headerAvatar.src = data.filepath || "images/logo2.png";
         }
+    document.getElementById("profile-banner").src =
+        data.banner_filepath || "images/default-banner.jpg";
 
   } catch (err) {
     console.error("Profile load error:", err);
@@ -173,86 +176,6 @@ async function loadMyProfile() {
 
 }
 loadMyProfile();
-
-document.addEventListener("DOMContentLoaded", () => {
-  const profilePic = document.getElementById('profilePic');
-  const modal = document.getElementById('avatarModal');
-  const fileInput = document.getElementById('modalAvatarInput');
-  const preview = document.getElementById('previewImage');
-  const saveBtn = document.getElementById('saveAvatarBtn');
-  const cancelBtn = document.getElementById('cancelAvatarBtn');
-  let cropper;
-
-  // Open modal
-  profilePic.addEventListener('click', () => {
-    modal.style.display = 'flex';
-  });
-
-  // Load image into cropper
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      preview.src = e.target.result;
-      preview.style.display = 'block';
-
-      // Destroy old cropper
-      if (cropper) cropper.destroy();
-
-      // Initialize Cropper
-      cropper = new Cropper(preview, {
-        aspectRatio: 1,
-        viewMode: 1,
-        autoCropArea: 1,
-        movable: true,
-        zoomable: true
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-
-  // Save cropped image
-  saveBtn.addEventListener('click', async () => {
-    if (!cropper) return;
-
-    const canvas = cropper.getCroppedCanvas({
-      width: 300,
-      height: 300
-    });
-
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-
-    const userId = sessionStorage.getItem("user_id");
-    const formData = new FormData();
-    formData.append('avatar', blob, 'avatar.png');
-
-    const res = await fetch(`/api/users/${userId}/avatar`, {
-      method: 'POST',
-      body: formData,
-      credentials: 'include'
-    });
-
-    const data = await res.json();
-
-    if (data.path) {
-      profilePic.src = data.path;
-      modal.style.display = 'none';
-      fileInput.value = "";
-      preview.style.display = "none";
-      cropper.destroy();
-    }
-  });
-
-  // Cancel
-  cancelBtn.addEventListener('click', () => {
-    modal.style.display = 'none';
-    fileInput.value = "";
-    preview.style.display = "none";
-    if (cropper) cropper.destroy();
-  });
-});
     </script>
 <script>
 (function() {
