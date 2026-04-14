@@ -58,9 +58,10 @@
 
         <!-- Right Sidebar -->
         <aside class="feed-sidebar-right">
-            <div class="right-sidebar-placeholder">
-                <p>Future features</p>
-            </div>
+          <div class="suggestions-box">
+            <p class="suggestions-title">People you may know</p>
+            <div id="suggestions-list"></div>
+          </div>
         </aside>
     </div>
 
@@ -340,5 +341,44 @@ searchForm.addEventListener('submit', (e) => {
           .catch(err => console.error('Error loading trending posts:', err));
       });
     </script>
+<script>
+(function() {
+  const userId = sessionStorage.getItem('user_id');
+  if (!userId) return;
+  const list = document.getElementById('suggestions-list');
+  if (!list) return;
+
+  fetch(`/api/suggestions/${userId}`)
+    .then(res => res.json())
+    .then(users => {
+      if (!users.length) {
+        list.innerHTML = '<p style="font-size:0.85rem;color:#999;">No suggestions right now.</p>';
+        return;
+      }
+      users.forEach(user => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.innerHTML = `
+          <span class="suggestion-nickname">${user.nickname}</span>
+          <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
+        `;
+        const btn = item.querySelector('.follow-suggestion-btn');
+        btn.addEventListener('click', async () => {
+          await fetch(`/api/follow/${user.user_id}`, {
+            method: 'POST',
+            credentials: 'include'
+          });
+          btn.textContent = 'Following';
+          btn.classList.add('following');
+          btn.disabled = true;
+        });
+        list.appendChild(item);
+      });
+    })
+    .catch(() => {
+      list.innerHTML = '<p style="font-size:0.85rem;color:#999;">Could not load suggestions.</p>';
+    });
+})();
+</script>
 </body>
 </html>
