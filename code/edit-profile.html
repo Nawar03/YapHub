@@ -405,13 +405,9 @@ cancelBannerBtn.addEventListener('click', () => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
         item.innerHTML = `
-<<<<<<< HEAD
-=======
-          <div class="suggestion-avatar"></div>
->>>>>>> 079da18df8589268fff44276cd3076c19f852e00
-          <span class="suggestion-nickname">${user.nickname}</span>
-          <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
-        `;
+  <span class="suggestion-nickname">${user.nickname}</span>
+  <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
+`;
         const btn = item.querySelector('.follow-suggestion-btn');
         btn.addEventListener('click', async () => {
           await fetch(`/api/follow/${user.user_id}`, {
