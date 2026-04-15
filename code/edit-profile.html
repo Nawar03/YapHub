@@ -24,6 +24,17 @@
 
             <!-- Right: User -->
             <div class="header-right">
+                <div class="notification-wrapper">
+                    <button class="notification-bell" id="notificationBell" onclick="toggleNotifications()" style="position:relative;">
+                      <span class="notification-badge" id="notifBadge"></span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="white">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6V11c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+                      </svg>
+                    </button>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <p class="notification-empty">No notifications yet</p>
+                    </div>
+                </div>
                 <div class="header-profile">
                     <a href="myprofile.html" class="profile-avatar-link">
                         <div><img id="headerAvatar" class="profile-avatar" src="images/logo2.png" alt="Avatar"></div>
@@ -138,7 +149,6 @@
 </div>
 
     <script src="js/script.js"></script>
-<<<<<<< HEAD
     <script>
   document.addEventListener("DOMContentLoaded", () => {
   let userId;
@@ -385,8 +395,6 @@ cancelBannerBtn.addEventListener('click', () => {
 });
 });
     </script>
-=======
->>>>>>> 079da18df8589268fff44276cd3076c19f852e00
 <script>
 (function() {
   const userId = sessionStorage.getItem('user_id');
@@ -405,7 +413,7 @@ cancelBannerBtn.addEventListener('click', () => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
         item.innerHTML = `
-  <span class="suggestion-nickname">${user.nickname}</span>
+  <a href="profile.html?user_id=${user.user_id}" style="color:#333;font-weight:500;font-size:0.9rem;text-decoration:none;">${user.nickname}</a>
   <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
 `;
         const btn = item.querySelector('.follow-suggestion-btn');
@@ -425,6 +433,11 @@ cancelBannerBtn.addEventListener('click', () => {
       list.innerHTML = '<p style="font-size:0.85rem;color:#999;">Could not load suggestions.</p>';
     });
 })();
+</script>
+<script>
+  if (sessionStorage.getItem('user_id')) {
+    checkUnreadNotifications();
+  }
 </script>
 </body>
 </html>
