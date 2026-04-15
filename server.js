@@ -558,6 +558,27 @@ app.get('/posts/:post_id/likes', (req, res) => {
   });
 });
 
+app.get("/api/suggestions/:user_id", (req, res) => {
+  const userId = req.params.user_id;
+  const sql = `
+    SELECT user_id, nickname
+    FROM users
+    WHERE user_id != ?
+    AND user_id NOT IN (
+      SELECT following_id FROM follows WHERE follower_id = ?
+    )
+    ORDER BY RAND()
+    LIMIT 5
+  `;
+  db.query(sql, [userId, userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+});
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
