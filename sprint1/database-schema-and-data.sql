@@ -60,6 +60,28 @@ CREATE TABLE likes (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
+CREATE TABLE notifications (
+  notification_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  from_user_id INT NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  post_id INT,
+  is_read TINYINT DEFAULT 0,
+  created_at DATETIME DEFAULT NOW(),
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (from_user_id) REFERENCES users(user_id),
+  FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE
+);
+
+CREATE TABLE banner_pictures (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE,
+    filename VARCHAR(255) NOT NULL,
+    filepath VARCHAR(255) NOT NULL,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 SHOW TABLES;
 
 -- ============================================
