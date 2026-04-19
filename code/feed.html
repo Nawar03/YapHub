@@ -228,7 +228,7 @@ searchForm.addEventListener('submit', (e) => {
         const item = document.createElement('div');
         item.className = 'suggestion-item';
         item.innerHTML = `
-          <a href="profile.html?user_id=${user.user_id}" style="color:#333;font-weight:500;font-size:0.9rem;text-decoration:none;">${user.nickname}</a>
+          <a href="${user.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + user.user_id}" style="color:#333;font-weight:500;font-size:0.9rem;text-decoration:none;">${user.nickname}</a>
           <button class="follow-suggestion-btn" data-user-id="${user.user_id}">Follow</button>
         `;
         const btn = item.querySelector('.follow-suggestion-btn');

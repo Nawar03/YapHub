@@ -253,7 +253,7 @@ if (followBtn) {
           postCard.innerHTML = `
   <div class="post-header">
     <div class="post-header-left">
-      <a href="profile.html?user_id=${post.user_id}" style="color:#333;font-weight:600;text-decoration:none;font-size:0.95rem;">${post.nickname}</a>
+      <a href="${post.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + post.user_id}" style="color:#333;font-weight:600;text-decoration:none;font-size:0.95rem;">${post.nickname}</a>
     </div>
     <div class="post-header-right">
       <span class="post-time">${getTimeLeft(post.expires_at)}</span>
