@@ -501,7 +501,7 @@ app.get('/posts', (req, res) => {
 app.get('/posts/:post_id/comments', (req, res) => {
   const postId = req.params.post_id;
   const sql = `
-  SELECT comments.comment_id, comments.content, comments.created_at, users.nickname
+  SELECT comments.comment_id, comments.content, comments.created_at, users.nickname, comments.user_id
   FROM comments
   JOIN users ON comments.user_id = users.user_id
   WHERE comments.post_id = ?
