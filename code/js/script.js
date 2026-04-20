@@ -28,6 +28,77 @@ function getCommentAge(createdAt) {
   return diffDays + 'd ago';
 }
 
+function toggleNotifications() {
+  const dropdown = document.getElementById('notificationDropdown');
+  if (!dropdown) return;
+  const isOpen = dropdown.classList.contains('open');
+  if (!isOpen) {
+    loadNotifications();
+    dropdown.classList.add('open');
+    markNotificationsRead();
+  } else {
+    dropdown.classList.remove('open');
+  }
+}
+
+async function loadNotifications() {
+  const userId = sessionStorage.getItem('user_id');
+  if (!userId) return;
+  const dropdown = document.getElementById('notificationDropdown');
+  if (!dropdown) return;
+  try {
+    const res = await fetch(`/notifications/${userId}`);
+    const notifications = await res.json();
+    if (!notifications.length) {
+      dropdown.innerHTML = '<p class="notification-empty">No notifications yet</p>';
+      return;
+    }
+    dropdown.innerHTML = notifications.map(n => {
+      const msg = n.type === 'like'
+        ? `<a href="profile.html?user_id=${n.from_user_id}" style="color:#5F15D6;font-weight:bold;text-decoration:none;">${n.from_nickname}</a> liked your post`
+        : `<a href="profile.html?user_id=${n.from_user_id}" style="color:#5F15D6;font-weight:bold;text-decoration:none;">${n.from_nickname}</a> commented on your post`;
+      const dot = n.is_read ? '' : '<span class="notif-unread-dot"></span>';
+      return `<div class="notification-item">${dot}<span>${msg}</span></div>`;
+    }).join('');
+  } catch (err) {
+    console.error('Error loading notifications:', err);
+  }
+}
+
+async function markNotificationsRead() {
+  const userId = sessionStorage.getItem('user_id');
+  if (!userId) return;
+  try {
+    await fetch(`/notifications/read/${userId}`, { method: 'POST' });
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function checkUnreadNotifications() {
+  const userId = sessionStorage.getItem('user_id');
+  if (!userId) return;
+  try {
+    const res = await fetch(`/notifications/${userId}`);
+    const notifications = await res.json();
+    const hasUnread = notifications.some(n => !n.is_read);
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = hasUnread ? 'block' : 'none';
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+document.addEventListener('click', function(e) {
+  const wrapper = document.querySelector('.notification-wrapper');
+  const dropdown = document.getElementById('notificationDropdown');
+  if (wrapper && dropdown && !wrapper.contains(e.target)) {
+    dropdown.classList.remove('open');
+  }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
   // SIGN UP
   const signupForm = document.getElementById("signupForm");
@@ -182,7 +253,7 @@ if (followBtn) {
           postCard.innerHTML = `
   <div class="post-header">
     <div class="post-header-left">
-      <span class="post-nickname">${post.nickname}</span>
+      <a href="${post.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + post.user_id}" style="color:#333;font-weight:600;text-decoration:none;font-size:0.95rem;">${post.nickname}</a>
     </div>
     <div class="post-header-right">
       <span class="post-time">${getTimeLeft(post.expires_at)}</span>
@@ -261,7 +332,7 @@ if (followBtn) {
                 p.style.justifyContent = "flex-start";
                 p.style.alignItems = "center";
                 p.innerHTML = `
-                  <span style="font-size: 12px; color: #6b7280; margin-right: 8px; white-space: nowrap; font-weight: bold;">@${comment.nickname}</span>
+                  <a href="${comment.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + comment.user_id}" style="font-size: 12px; color: #5F15D6; margin-right: 8px; white-space: nowrap; font-weight: bold; text-decoration: none;">@${comment.nickname}</a>
                   <span style="flex: 1;">${comment.content}</span>
                   <span style="font-size: 11px; color: #9ca3af; margin-left: 12px; white-space: nowrap;">${getCommentAge(comment.created_at)}</span>
                 `;

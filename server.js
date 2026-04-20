@@ -30,7 +30,7 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Elmomo123!',
+  password: 'Elmo123!',
   database: 'yaphub'
 });
 
@@ -480,7 +480,7 @@ app.post('/posts', (req, res) => {
 // GET /posts - Retrieve non-expired posts
 app.get('/posts', (req, res) => {
   const sql = `
-    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname
     FROM posts
     JOIN users ON posts.user_id = users.user_id
     WHERE posts.expires_at > NOW()
@@ -501,7 +501,7 @@ app.get('/posts', (req, res) => {
 app.get('/posts/:post_id/comments', (req, res) => {
   const postId = req.params.post_id;
   const sql = `
-  SELECT comments.comment_id, comments.content, comments.created_at, users.nickname
+  SELECT comments.comment_id, comments.content, comments.created_at, users.nickname, comments.user_id
   FROM comments
   JOIN users ON comments.user_id = users.user_id
   WHERE comments.post_id = ?
@@ -528,14 +528,21 @@ app.post('/comments', (req, res) => {
       console.error(err);
       return res.status(500).json({ success: false, message: 'Database error' });
     }
-    return res.json({ success: true, comment_id: results.insertId });
+    res.json({ success: true, comment_id: results.insertId });
+    const getPostOwnerSql2 = `SELECT user_id FROM posts WHERE post_id = ?`;
+    db.query(getPostOwnerSql2, [post_id], (err2, rows) => {
+      if (!err2 && rows.length > 0 && rows[0].user_id != parseInt(user_id, 10)) {
+        const notifSql = `INSERT INTO notifications (user_id, from_user_id, type, post_id) VALUES (?, ?, 'comment', ?)`;
+        db.query(notifSql, [rows[0].user_id, user_id, post_id], () => {});
+      }
+    });
   });
 });
 
 // GET /trending-posts - Get posts ordered by like count
 app.get('/trending-posts', (req, res) => {
   const sql = `
-    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname,
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname,
       COUNT(likes.like_id) AS like_count
     FROM posts
     JOIN users ON posts.user_id = users.user_id
@@ -557,7 +564,7 @@ app.get('/trending-posts', (req, res) => {
 app.get('/following-posts', (req, res) => {
   const userId = req.query.user_id;
   const sql = `
-    SELECT posts.post_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname
     FROM posts
     JOIN users ON posts.user_id = users.user_id
     JOIN follows ON posts.user_id = follows.following_id
@@ -586,7 +593,14 @@ app.post('/likes', (req, res) => {
       console.error(err);
       return res.status(500).json({ success: false, message: 'Database error' });
     }
-    return res.json({ success: true });
+    res.json({ success: true });
+    const getPostOwnerSql = `SELECT user_id FROM posts WHERE post_id = ?`;
+    db.query(getPostOwnerSql, [post_id], (err2, rows) => {
+      if (!err2 && rows.length > 0 && rows[0].user_id != user_id) {
+        const notifSql = `INSERT INTO notifications (user_id, from_user_id, type, post_id) VALUES (?, ?, 'like', ?)`;
+        db.query(notifSql, [rows[0].user_id, user_id, post_id], () => {});
+      }
+    });
   });
 });
 
@@ -641,6 +655,40 @@ app.get("/api/suggestions/:user_id", (req, res) => {
       return res.status(500).json({ error: "Database error" });
     }
     res.json(results);
+  });
+});
+
+// GET /notifications/:user_id - get notifications for a user
+app.get('/notifications/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const sql = `
+    SELECT n.notification_id, n.type, n.is_read, n.created_at,
+           u.nickname as from_nickname, u.user_id as from_user_id, n.post_id
+    FROM notifications n
+    JOIN users u ON n.from_user_id = u.user_id
+    WHERE n.user_id = ?
+    ORDER BY n.created_at DESC
+    LIMIT 20
+  `;
+  db.query(sql, [userId], (err, results) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json(results);
+  });
+});
+
+// POST /notifications/read/:user_id - mark all notifications as read
+app.post('/notifications/read/:user_id', (req, res) => {
+  const userId = req.params.user_id;
+  const sql = `UPDATE notifications SET is_read = 1 WHERE user_id = ?`;
+  db.query(sql, [userId], (err) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Database error' });
+    }
+    res.json({ success: true });
   });
 });
 
