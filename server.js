@@ -30,8 +30,8 @@ app.use('/images', express.static('images'));
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: 'Elmo123!',
-  database: 'Elmo123!'
+  password: 'Elmomo123!',
+  database: 'yaphub'
 });
 
 // Test route
