@@ -31,7 +31,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'Elmo123!',
-  database: 'yaphub'
+  database: 'Elmo123!'
 });
 
 // Test route
