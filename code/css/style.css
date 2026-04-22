@@ -1237,8 +1237,7 @@ nav {
     border: 4px solid white;
     background: white;
 }
-<<<<<<< HEAD
-=======
+
 
 .suggestions-box {
   background-color: transparent;
@@ -1382,4 +1381,19 @@ nav {
   border-radius: 50%;
   display: none;
 }
->>>>>>> main
+
+
+/* Gradient Background */
+.feed-page {
+  background: linear-gradient(135deg, #f5f0ff 0%, #ffffff 60%);
+}
+
+/* Post Card Hover Effect */
+.post-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
+}
