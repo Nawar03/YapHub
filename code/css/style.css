@@ -1397,3 +1397,37 @@ nav {
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
 }
+
+.yaphub-animated {
+  display: inline-block;
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+    color: #5F15D6;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.75;
+    color: #7C3AED;
+  }
+}
+
+.header-title {
+  display: inline-block;
+  animation: pulse-white 2s ease-in-out infinite;
+}
+
+@keyframes pulse-white {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
