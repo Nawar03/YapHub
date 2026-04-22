@@ -1382,3 +1382,18 @@ nav {
   display: none;
 }
 
+
+/* Gradient Background */
+.feed-page {
+  background: linear-gradient(135deg, #f5f0ff 0%, #ffffff 60%);
+}
+
+/* Post Card Hover Effect */
+.post-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12);
+}
