@@ -259,6 +259,17 @@ const bannerStorage = multer.diskStorage({
 
 const uploadBanner = multer({ storage: bannerStorage });
 
+const postImageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/posts');
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  }
+});
+const uploadPostImage = multer({ storage: postImageStorage });
+
 const fs = require('fs');
 
 //route for profile picture
@@ -456,19 +467,22 @@ app.get("/api/following/:user_id", (req, res) => {
   });
 });
 // POST /posts - Create a new post
-app.post('/posts', (req, res) => {
-  const { user_id, content } = req.body;
+app.post('/posts', uploadPostImage.single('image'), (req, res) => {
+  const user_id = req.body ? req.body.user_id : null;
+  const content = req.body ? req.body.content : null;
 
   if (!user_id || !content) {
     return res.status(400).json({ success: false, message: 'Missing user_id or content' });
   }
 
+  const imagePath = req.file ? `/uploads/posts/${req.file.filename}` : null;
+
   const sql = `
-    INSERT INTO posts (user_id, content, created_at, expires_at)
-    VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY))
+    INSERT INTO posts (user_id, content, created_at, expires_at, image_path)
+    VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), ?)
   `;
 
-  db.query(sql, [user_id, content], (err) => {
+  db.query(sql, [user_id, content, imagePath], (err) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ success: false, message: 'Database error' });
@@ -480,7 +494,7 @@ app.post('/posts', (req, res) => {
 // GET /posts - Retrieve non-expired posts
 app.get('/posts', (req, res) => {
   const sql = `
-    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, posts.image_path, users.nickname
     FROM posts
     JOIN users ON posts.user_id = users.user_id
     WHERE posts.expires_at > NOW()
@@ -542,7 +556,7 @@ app.post('/comments', (req, res) => {
 // GET /trending-posts - Get posts ordered by like count
 app.get('/trending-posts', (req, res) => {
   const sql = `
-    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname,
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, posts.image_path, users.nickname,
       COUNT(likes.like_id) AS like_count
     FROM posts
     JOIN users ON posts.user_id = users.user_id
@@ -564,7 +578,7 @@ app.get('/trending-posts', (req, res) => {
 app.get('/following-posts', (req, res) => {
   const userId = req.query.user_id;
   const sql = `
-    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, users.nickname
+    SELECT posts.post_id, posts.user_id, posts.content, posts.created_at, posts.expires_at, posts.image_path, users.nickname
     FROM posts
     JOIN users ON posts.user_id = users.user_id
     JOIN follows ON posts.user_id = follows.following_id

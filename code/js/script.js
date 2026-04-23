@@ -261,6 +261,9 @@ if (followBtn) {
   </div>
   <div class="post-body">
     <p class="post-text">${post.content}</p>
+    ${post.image_path ? `<div style="margin-top:0.75rem; width:100%; height:350px; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff;">
+    <img src="${post.image_path}" style="max-width:100%; max-height:350px; object-fit:contain; border-radius:8px; display:block;">
+  </div>` : ''}
   </div>
   <div class="post-actions">
     <button class="post-action-btn">👍 Like</button>
