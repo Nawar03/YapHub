@@ -1,4 +1,9 @@
 node_modules/
 .env
 .DS_Store
-
+uploads/posts/*
+uploads/avatars/*
+uploads/banners/*
+!uploads/posts/.gitkeep
+!uploads/avatars/.gitkeep
+!uploads/banners/.gitkeep
