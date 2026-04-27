@@ -1431,3 +1431,64 @@ nav {
     opacity: 1;
   }
 }
+body.dark-mode {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .feed-header {
+  background-color: #4a1a9e;
+}
+
+body.dark-mode .feed-sidebar-left,
+body.dark-mode .feed-sidebar-right {
+  background-color: #16213e;
+  border-color: #333;
+}
+
+body.dark-mode .post-card {
+  background-color: #16213e;
+  border-color: #333;
+}
+
+body.dark-mode .post-header,
+body.dark-mode .post-actions {
+  border-color: #333;
+}
+
+body.dark-mode .post-text,
+body.dark-mode .post-nickname {
+  color: #e0e0e0;
+}
+
+body.dark-mode .post-action-btn {
+  color: #aaa;
+}
+
+body.dark-mode .post-action-btn:hover {
+  background-color: #2a2a4e;
+  color: #c084fc;
+}
+
+body.dark-mode .search-input {
+  background-color: #16213e;
+  border-color: #333;
+  color: #e0e0e0;
+}
+
+body.dark-mode .nav-link {
+  color: #ccc;
+}
+
+body.dark-mode .nav-link:hover {
+  color: #c084fc;
+}
+
+body.dark-mode .suggestion-item {
+  background-color: #16213e;
+  border-color: #333;
+}
+
+body.dark-mode .feed-page {
+  background: #1a1a2e;
+}
