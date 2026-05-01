@@ -1492,3 +1492,101 @@ body.dark-mode .suggestion-item {
 body.dark-mode .feed-page {
   background: #1a1a2e;
 }
+
+body.dark-mode .post-card {
+  background-color: #16213e;
+}
+
+body.dark-mode .profile-header-container,
+body.dark-mode .profile-form,
+body.dark-mode .settings-container,
+body.dark-mode .profile-placeholder {
+  background-color: #16213e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .profile-input,
+body.dark-mode .profile-textarea,
+body.dark-mode .comment-input {
+  background-color: #1a1a2e;
+  border-color: #333;
+  color: #e0e0e0;
+}
+
+body.dark-mode .profile-input::placeholder,
+body.dark-mode .profile-textarea::placeholder,
+body.dark-mode .comment-input::placeholder {
+  color: #666;
+}
+
+body.dark-mode .profile-name,
+body.dark-mode .profile-handle,
+body.dark-mode .stat,
+body.dark-mode .settings-title {
+  color: #e0e0e0;
+}
+
+body.dark-mode .settings-btn {
+  background-color: #16213e;
+  border-color: #333;
+  color: #e0e0e0;
+}
+
+body.dark-mode .settings-btn:hover {
+  background-color: #2a2a4e;
+}
+
+body.dark-mode .settings-danger {
+  background-color: #2a1a1a;
+  border-color: #553333;
+}
+
+body.dark-mode .notification-dropdown {
+  background-color: #16213e;
+  border-color: #333;
+}
+
+body.dark-mode .notification-item {
+  color: #e0e0e0;
+  border-color: #333;
+}
+
+body.dark-mode .comments-list p {
+  background-color: #1a1a2e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .post-card textarea,
+body.dark-mode textarea {
+  background-color: #16213e;
+  color: #e0e0e0;
+  border-color: #333;
+}
+
+body.dark-mode .suggestion-nickname {
+  color: #ffffff;
+}
+
+body.dark-mode .suggestion-item {
+  background-color: #1a1a2e;
+  border-color: #444;
+}
+
+body.dark-mode .suggestions-title {
+  color: #ffffff;
+}
+
+body.dark-mode .post-time {
+  color: #aaa;
+}
+
+body.dark-mode .post-nickname,
+body.dark-mode .post-text {
+  color: #ffffff;
+}
+
+body.dark-mode .btn-cancel {
+  background-color: #2a2a4e;
+  color: #e0e0e0;
+  border-color: #333;
+}
