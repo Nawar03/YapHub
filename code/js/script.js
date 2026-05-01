@@ -1,18 +1,20 @@
 function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-  const btn = document.getElementById('darkModeBtn');
-  if (document.body.classList.contains('dark-mode')) {
-    btn.textContent = '☀️';
-    localStorage.setItem('darkMode', 'on');
-  } else {
-    btn.textContent = '🌙';
-    localStorage.setItem('darkMode', 'off');
-  }
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+  updateDarkModeBtn();
 }
 
-if (localStorage.getItem('darkMode') === 'on') {
+function updateDarkModeBtn() {
+  const btn = document.getElementById('darkModeBtn');
+  if (!btn) return;
+  const isDark = document.body.classList.contains('dark-mode');
+  btn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
+}
+
+if (localStorage.getItem('darkMode') === 'enabled') {
   document.body.classList.add('dark-mode');
 }
+updateDarkModeBtn();
 function getTimeLeft(expiresAt) {
   const now = new Date();
   const expires = new Date(expiresAt);
