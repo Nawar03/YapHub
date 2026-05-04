@@ -35,6 +35,7 @@ const db = mysql.createConnection({
   port: process.env.MYSQLPORT || 3306
 });
 
+
 // Test route
 app.get('/hello-user', (req, res) => {
   const sql = 'SELECT * FROM users LIMIT 1';
