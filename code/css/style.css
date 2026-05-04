@@ -1590,3 +1590,11 @@ body.dark-mode .btn-cancel {
   color: #e0e0e0;
   border-color: #333;
 }
+
+#imagePreviewContainer {
+  background-color: #fff;
+}
+
+body.dark-mode #imagePreviewContainer {
+  background-color: #16213e;
+}
