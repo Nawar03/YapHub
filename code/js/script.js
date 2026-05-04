@@ -2,6 +2,7 @@ function toggleDarkMode() {
   const isDark = document.body.classList.toggle('dark-mode');
   localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
   updateDarkModeBtn();
+  updateImagePreviewBackground();
 }
 
 function updateDarkModeBtn() {
@@ -11,10 +12,18 @@ function updateDarkModeBtn() {
   btn.textContent = isDark ? '🌙 Dark Mode' : '☀️ Light Mode';
 }
 
+function updateImagePreviewBackground() {
+  const container = document.getElementById('imagePreviewContainer');
+  if (!container) return;
+  const isDark = document.body.classList.contains('dark-mode');
+  container.style.background = isDark ? '#16213e' : '#fff';
+}
+
 if (localStorage.getItem('darkMode') === 'enabled') {
   document.body.classList.add('dark-mode');
 }
 updateDarkModeBtn();
+updateImagePreviewBackground();
 function getTimeLeft(expiresAt) {
   const now = new Date();
   const expires = new Date(expiresAt);
@@ -270,7 +279,7 @@ if (followBtn) {
           postCard.innerHTML = `
   <div class="post-header">
     <div class="post-header-left">
-      <a href="${post.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + post.user_id}" style="color:#333;font-weight:600;text-decoration:none;font-size:0.95rem;">${post.nickname}</a>
+      <a href="${post.user_id == sessionStorage.getItem('user_id') ? 'myprofile.html' : 'profile.html?user_id=' + post.user_id}" style="color:${document.body.classList.contains('dark-mode') ? '#ffffff' : '#333'};font-weight:600;text-decoration:none;font-size:0.95rem;">${post.nickname}</a>
     </div>
     <div class="post-header-right">
       <span class="post-time">${getTimeLeft(post.expires_at)}</span>
@@ -278,7 +287,7 @@ if (followBtn) {
   </div>
   <div class="post-body">
     <p class="post-text">${post.content}</p>
-    ${post.image_path ? `<div style="margin-top:0.75rem; width:100%; height:350px; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fff;">
+    ${post.image_path ? `<div style="margin-top:0.75rem; width:100%; height:350px; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:${document.body.classList.contains('dark-mode') ? '#16213e' : '#fff'};">
     <img src="${post.image_path}" style="max-width:100%; max-height:350px; object-fit:contain; border-radius:8px; display:block;">
   </div>` : ''}
   </div>
