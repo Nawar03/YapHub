@@ -34,6 +34,7 @@ const db = mysql.createConnection({
   database: 'yaphub'
 });
 
+
 // Test route
 app.get('/hello-user', (req, res) => {
   const sql = 'SELECT * FROM users LIMIT 1';
