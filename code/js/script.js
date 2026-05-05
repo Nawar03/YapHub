@@ -344,6 +344,14 @@ if (followBtn) {
               const data = await res.json();
               if (data.success || (!isLiked && data.message === 'Already liked')) {
                 await loadLikes();
+                if (!isLiked) {
+                  confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.6 },
+                    colors: ['#7C3AED', '#5F15D6', '#c084fc', '#ffffff']
+                  });
+                }
               }
             } catch (err) {
               console.error('Error toggling like:', err);
