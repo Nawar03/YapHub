@@ -69,7 +69,8 @@
                         <button onclick="window.location.href='feed.html'" class="post-action-btn" style="background-color: #888; color: white; border: none;">Cancel</button>
                     </div>
                 </div>
-                <textarea id="postContent" placeholder="What's on your mind?" style="flex: 1; width: 100%; border: none; resize: none; font-size: 16px; padding: 12px; outline: none; overflow-y: auto; max-height: 120px;"></textarea>
+                <textarea id="postContent" placeholder="What's on your mind?" maxlength="280" style="flex: 1; width: 100%; border: none; resize: none; font-size: 16px; padding: 12px; outline: none; overflow-y: auto; max-height: 120px;" oninput="updateCharCount()"></textarea>
+                <div id="charCount" style="text-align: right; padding: 4px 12px; font-size: 12px; color: #999;">280 characters remaining</div>
                 <div style="display: flex; flex-direction: column; margin-top: auto;">
                   <div id="postImagePreview" style="display:none; padding:0 12px 12px 12px;">
                     <div id="imagePreviewContainer" style="position:relative; width:100%; height:350px; border-radius:8px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
@@ -168,6 +169,14 @@ function previewImage(input) {
   }
 }
 
+function updateCharCount() {
+  const textarea = document.getElementById('postContent');
+  const remaining = 280 - textarea.value.length;
+  const counter = document.getElementById('charCount');
+  counter.textContent = remaining + ' characters remaining';
+  counter.style.color = remaining < 20 ? 'red' : '#999';
+}
+        
 function removeImage() {
   document.getElementById('postImage').value = '';
   document.getElementById('postImagePreview').style.display = 'none';
